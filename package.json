@@ -1,5 +1,5 @@
 {
-  "name": "state-league",
+  "name": "module-league-state",
   "version": "2.0.0",
   "description": "Module that provides state integration for League of Legends games",
   "author": "RCVolus",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "typescript": "^4.3.2",
-    "league-prod-toolkit": "file:../.."
+    "rcv-prod-toolkit-types": "^1.0.1"
   },
   "scripts": {
     "build": "tsc"

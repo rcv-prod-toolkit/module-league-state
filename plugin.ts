@@ -1,5 +1,4 @@
-import { PluginContext } from 'league-prod-toolkit/core/modules/Module'
-
+import type { PluginContext } from 'rcv-prod-toolkit-types'
 import { RequestController } from './controller/RequestController';
 import { SetGameController } from './controller/SetGameController';
 import { UnsetGameController } from './controller/UnsetGameController';

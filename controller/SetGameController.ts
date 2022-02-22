@@ -1,4 +1,4 @@
-import { LPTEvent } from 'league-prod-toolkit/core/eventbus/LPTE'
+import { LPTEvent } from 'rcv-prod-toolkit-types'
 import { Controller } from './Controller'
 import { state } from '../LeagueState'
 import extendLiveGameWithStatic from '../extendLiveGameWithStatic'

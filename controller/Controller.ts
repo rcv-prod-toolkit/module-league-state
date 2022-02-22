@@ -1,5 +1,4 @@
-import { LPTEvent } from 'league-prod-toolkit/core/eventbus/LPTE';
-import { PluginContext } from 'league-prod-toolkit/core/modules/Module';
+import { LPTEvent, PluginContext } from 'rcv-prod-toolkit-types';
 
 export abstract class Controller {
   pluginContext: PluginContext

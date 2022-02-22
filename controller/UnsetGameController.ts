@@ -1,13 +1,12 @@
-import { LPTEvent } from 'league-prod-toolkit/core/eventbus/LPTE'
+import { LPTEvent } from 'rcv-prod-toolkit-types'
 import { Controller } from './Controller'
-import { state } from '../LeagueState'
 
 export class UnsetGameController extends Controller {
   async handle (event: LPTEvent): Promise<void> {
     this.pluginContext.LPTE.emit({
       meta: {
         namespace: 'reply',
-        type: e.meta.reply,
+        type: event.meta.reply as string,
         version: 1
       }
     });
