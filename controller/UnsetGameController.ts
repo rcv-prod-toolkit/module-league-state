@@ -1,4 +1,4 @@
-import { LPTEvent } from 'rcv-prod-toolkit-types'
+import { LPTEvent } from '@rcv-prod-toolkit/types'
 import { Controller } from './Controller'
 
 export class UnsetGameController extends Controller {

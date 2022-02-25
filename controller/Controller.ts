@@ -1,4 +1,4 @@
-import { LPTEvent, PluginContext } from 'rcv-prod-toolkit-types';
+import { LPTEvent, PluginContext } from '@rcv-prod-toolkit/types';
 
 export abstract class Controller {
   pluginContext: PluginContext

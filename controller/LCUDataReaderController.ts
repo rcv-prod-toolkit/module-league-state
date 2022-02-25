@@ -1,4 +1,4 @@
-import { LPTEvent, PluginContext } from 'rcv-prod-toolkit-types'
+import { LPTEvent, PluginContext } from '@rcv-prod-toolkit/types'
 import { Controller } from './Controller'
 import { state } from '../LeagueState'
 import { convertState } from '../champselect/convertState'
