@@ -4,11 +4,10 @@ import { SetGameController } from './controller/SetGameController';
 import { UnsetGameController } from './controller/UnsetGameController';
 import { LCUDataReaderController } from './controller/LCUDataReaderController';
 
-const namespace = 'state-league';
-
 export let leagueStatic: any;
 
 module.exports = async (ctx: PluginContext) => {
+  const namespace = ctx.plugin.module.getName();
   // Register new UI page
   ctx.LPTE.emit({
     meta: {
@@ -26,7 +25,7 @@ module.exports = async (ctx: PluginContext) => {
   const requestController = new RequestController(ctx)
   const setGameController = new SetGameController(ctx)
   const unsetGameController = new UnsetGameController(ctx)
-  const lcuDataReaderController = new LCUDataReaderController(ctx)
+  let lcuDataReaderController: LCUDataReaderController
 
   // Answer requests to get state
   ctx.LPTE.on(namespace, 'request', e => {
@@ -81,15 +80,8 @@ module.exports = async (ctx: PluginContext) => {
     status: 'RUNNING'
   });
 
-  ctx.LPTE.on('module-league-static', 'static-loaded', async () => {
-    const leagueStaticReq = await ctx.LPTE.request({
-      meta: {
-        namespace: 'static-league',
-        type: 'request-constants',
-        version: 1
-      }
-    })
-  
-    leagueStatic = leagueStaticReq?.constants
+  ctx.LPTE.on('module-league-static', 'static-loaded', async (e) => {  
+    leagueStatic = e.constants
+    lcuDataReaderController = new LCUDataReaderController(ctx)
   })
 };

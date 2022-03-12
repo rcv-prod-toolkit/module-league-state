@@ -22,7 +22,7 @@ export class LCUDataReaderController extends Controller {
   emitChampSelectUpdate (): void {
     this.pluginContext.LPTE.emit({
       meta: {
-        namespace: 'state-league',
+        namespace: this.pluginContext.plugin.module.getName(),
         type: 'champselect-update',
         version: 1
       },
@@ -86,7 +86,7 @@ export class LCUDataReaderController extends Controller {
         // Continue in flow
         this.pluginContext.LPTE.emit({
           meta: {
-            namespace: 'state-league',
+            namespace: this.pluginContext.plugin.module.getName(),
             type: 'set-game',
             version: 1
           },
@@ -138,7 +138,7 @@ export class LCUDataReaderController extends Controller {
       // Also make sure post game is loaded
       this.pluginContext.LPTE.emit({
         meta: {
-          namespace: 'state-league',
+          namespace: this.pluginContext.plugin.module.getName(),
           type: 'set-game',
           version: 1
         },

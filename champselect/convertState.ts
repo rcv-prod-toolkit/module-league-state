@@ -10,12 +10,12 @@ const convertTeam = ({ team, actions, gameState, leagueStatic }: { team: Array<C
 
     pick.spell1 = {
       id: cell.spell1Id,
-      icon: cell.spell1Id ? `/serve/static-league/img/summoner-spell/${cell.spell1Id}.png` : '',
+      icon: cell.spell1Id ? `/serve/module-league-static/img/summoner-spell/${cell.spell1Id}.png` : '',
     };
 
     pick.spell2 = {
       id: cell.spell2Id,
-      icon: cell.spell2Id ? `/serve/static-league/img/summoner-spell/${cell.spell2Id}.png` : '',
+      icon: cell.spell2Id ? `/serve/module-league-static/img/summoner-spell/${cell.spell2Id}.png` : '',
     };
 
     const championSearch = leagueStatic.champions.filter((c: any) => c.key === cell.championId.toString())
@@ -27,10 +27,10 @@ const convertTeam = ({ team, actions, gameState, leagueStatic }: { team: Array<C
       id: cell.championId,
       name: champion ? champion.name : '',
       idName: champion ? champion.id.toString() : '',
-      loadingImg: champion ? `/serve/static-league/img/champion/loading/${champion.id}_0.jpg` : '',
-      splashImg: champion ? `/serve/static-league/img/champion/splash/${champion.id}_0.jpg` : '',
-      splashCenteredImg: champion ? `/serve/static-league/img/champion/centered/${champion.key}.jpg` : '',
-      squareImg: champion ? `/serve/static-league/img/champion/tiles/${champion.id}_0.jpg` : '',
+      loadingImg: champion ? `/serve/module-league-static/img/champion/loading/${champion.id}_0.jpg` : '',
+      splashImg: champion ? `/serve/module-league-static/img/champion/splash/${champion.id}_0.jpg` : '',
+      splashCenteredImg: champion ? `/serve/module-league-static/img/champion/centered/${champion.key}.jpg` : '',
+      squareImg: champion ? `/serve/module-league-static/img/champion/tiles/${champion.id}_0.jpg` : '',
     };
 
     const summonerSearch = gameState.lcu.lobby.members.filter((member: any) => member.summonerId === cell.summonerId);
@@ -69,10 +69,10 @@ const convertTeam = ({ team, actions, gameState, leagueStatic }: { team: Array<C
       id: action.championId,
       name: champion ? champion.name : '',
       idName: champion ? champion.id.toString() : '',
-      loadingImg: champion ? `/serve/static-league/img/champion/loading/${champion.id}_0.jpg` : '',
-      splashImg: champion ? `/serve/static-league/img/champion/splash/${champion.id}_0.jpg` : '',
-      splashCenteredImg: champion ? `/serve/static-league/img/champion/centered/${champion.key}.jpg` : '',
-      squareImg: champion ? `/serve/static-league/img/champion/tiles/${champion.id}_0.jpg` : '',
+      loadingImg: champion ? `/serve/module-league-static/img/champion/loading/${champion.id}_0.jpg` : '',
+      splashImg: champion ? `/serve/module-league-static/img/champion/splash/${champion.id}_0.jpg` : '',
+      splashCenteredImg: champion ? `/serve/module-league-static/img/champion/centered/${champion.key}.jpg` : '',
+      squareImg: champion ? `/serve/module-league-static/img/champion/tiles/${champion.id}_0.jpg` : '',
     };
 
     return ban;

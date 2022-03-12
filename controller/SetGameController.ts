@@ -37,7 +37,7 @@ export class SetGameController extends Controller {
 
       const staticData = await this.pluginContext.LPTE.request({
         meta: {
-          namespace: 'static-league',
+          namespace: 'module-league-static',
           type: 'request-constants',
           version: 1
         }
@@ -52,7 +52,7 @@ export class SetGameController extends Controller {
 
       this.pluginContext.LPTE.emit({
         meta: {
-          namespace: 'state-league',
+          namespace: this.pluginContext.plugin.module.getName(),
           type: 'live-game-loaded',
           version: 1
         },
@@ -110,7 +110,7 @@ export class SetGameController extends Controller {
 
       this.pluginContext.LPTE.emit({
         meta: {
-          namespace: 'state-league',
+          namespace: this.pluginContext.plugin.module.getName(),
           type: 'match-game-loaded',
           version: 1
         },

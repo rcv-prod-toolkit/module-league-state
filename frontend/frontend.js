@@ -50,7 +50,7 @@ const formLoadByName = async () => {
 
   await LPTE.request({
     meta: {
-      namespace: 'state-league',
+      namespace: 'module-league-state',
       type: 'set-game',
       version: 1
     },
@@ -66,7 +66,7 @@ const formLoadByGameId = async () => {
 
   await LPTE.request({
     meta: {
-      namespace: 'state-league',
+      namespace: 'module-league-state',
       type: 'set-game',
       version: 1
     },
@@ -80,7 +80,7 @@ const formLoadByGameId = async () => {
 const formLoadMatchByLive = async () => {
   await LPTE.request({
     meta: {
-      namespace: 'state-league',
+      namespace: 'module-league-state',
       type: 'set-game',
       version: 1
     },
@@ -93,7 +93,7 @@ const formLoadMatchByLive = async () => {
 const formUnsetGame = async () => {
   await LPTE.request({
     meta: {
-      namespace: 'state-league',
+      namespace: 'module-league-state',
       type: 'unset-game',
       version: 1
     }
@@ -105,7 +105,7 @@ const formUnsetGame = async () => {
 const updateState = async () => {
   const response = await LPTE.request({
     meta: {
-      namespace: 'state-league',
+      namespace: 'module-league-state',
       type: 'request',
       version: 1
     }
