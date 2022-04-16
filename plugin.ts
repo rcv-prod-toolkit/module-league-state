@@ -16,9 +16,9 @@ module.exports = async (ctx: PluginContext) => {
       version: 1
     },
     pages: [{
-      name: 'LoL Game State',
+      name: 'LoL: Game State',
       frontend: 'frontend',
-      id: 'op-lol-game'
+      id: `op-${namespace}`
     }]
   });
 

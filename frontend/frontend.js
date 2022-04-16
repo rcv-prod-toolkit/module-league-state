@@ -1,4 +1,5 @@
 const e = React.createElement;
+const namespace = 'module-league-state'
 
 const setStatus = (componentName, component) => {
   // Status
@@ -24,7 +25,7 @@ const updateUi = (state) => {
   setStatus('web-live', state.web.live)
   setStatus('web-match', state.web.match)
   setStatus('web-timeline', state.web.timeline)
-  setStatus('in-game-live', state.game.live)
+  /* setStatus('in-game-live', state.game.live) */
 
   /* $('#status').text(state.state);
 
@@ -50,7 +51,7 @@ const formLoadByName = async () => {
 
   await LPTE.request({
     meta: {
-      namespace: 'module-league-state',
+      namespace,
       type: 'set-game',
       version: 1
     },
@@ -66,7 +67,7 @@ const formLoadByGameId = async () => {
 
   await LPTE.request({
     meta: {
-      namespace: 'module-league-state',
+      namespace,
       type: 'set-game',
       version: 1
     },
@@ -80,7 +81,7 @@ const formLoadByGameId = async () => {
 const formLoadMatchByLive = async () => {
   await LPTE.request({
     meta: {
-      namespace: 'module-league-state',
+      namespace,
       type: 'set-game',
       version: 1
     },
@@ -93,7 +94,7 @@ const formLoadMatchByLive = async () => {
 const formUnsetGame = async () => {
   await LPTE.request({
     meta: {
-      namespace: 'module-league-state',
+      namespace,
       type: 'unset-game',
       version: 1
     }
@@ -105,7 +106,7 @@ const formUnsetGame = async () => {
 const updateState = async () => {
   const response = await LPTE.request({
     meta: {
-      namespace: 'module-league-state',
+      namespace,
       type: 'request',
       version: 1
     }
@@ -168,7 +169,7 @@ const BanTable = ({ bans }) =>
   ]);
 
 const start = async () => {
-  setInterval(updateState, 1000)
+  setInterval(updateState, 5000)
   updateState()
 }
 
