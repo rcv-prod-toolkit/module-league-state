@@ -1,7 +1,7 @@
 import { LPTEvent, PluginContext } from '@rcv-prod-toolkit/types'
 import { Controller } from './Controller'
 import { state } from '../LeagueState'
-import { convertState } from '../champselect/convertState'
+import { ConvertedState, convertState } from '../champselect/convertState'
 import { leagueStatic } from '../plugin'
 
 export enum PickBanPhase {
@@ -12,6 +12,10 @@ export enum PickBanPhase {
 export class LCUDataReaderController extends Controller {
   leagueStatic: any
   refreshTask?: NodeJS.Timeout
+  recordChampselect = true
+  replayIsPlaying = false
+
+  recording: ConvertedState[] = []
 
   constructor (pluginContext: PluginContext) {
     super(pluginContext)
@@ -33,6 +37,34 @@ export class LCUDataReaderController extends Controller {
       order: state.lcu.champselect.order !== undefined ? { ...convertState(state, state.lcu.champselect.order as any, leagueStatic) } : undefined,
       isActive: state.lcu.champselect._available
     });
+  }
+
+  async replayChampselect (): Promise<void> {
+    if (this.recording.length <= 0) return
+
+    this.replayIsPlaying = true
+    for (let i = 0; i < this.recording.length; i++) {
+      const event = this.recording[i]
+      setTimeout(() => {
+        if (!this.replayIsPlaying) return
+        
+        this.pluginContext.LPTE.emit({
+          meta: {
+            namespace: this.pluginContext.plugin.module.getName(),
+            type: 'champselect-update',
+            version: 1
+          },
+          data: {
+            ...event
+          },
+          isActive: i >= this.recording.length
+        });
+
+        if (i >= this.recording.length) {
+          this.replayIsPlaying = false
+        }
+      }, event.timeAfterStart)
+    }
   }
 
   async handle (event: LPTEvent): Promise<void> {
@@ -63,9 +95,14 @@ export class LCUDataReaderController extends Controller {
       state.lcu.champselect._available = true
       state.lcu.champselect._created = new Date()
       state.lcu.champselect._updated = new Date()
+      this.recording = []
 
       if (!this.refreshTask) {
         this.refreshTask = setInterval(this.emitChampSelectUpdate, 500);
+      }
+
+      if (this.recordChampselect) {
+        this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
       }
 
       this.emitChampSelectUpdate()
@@ -73,9 +110,13 @@ export class LCUDataReaderController extends Controller {
       this.pluginContext.log.info('Flow: champselect - active')
     }
     if (event.meta.type === 'lcu-champ-select-update') {
-      if (event.data.timer.phase !== PickBanPhase.GAME_STARTING) {
+      if (event.data.timer.phase !== PickBanPhase.GAME_STARTING && state.lcu.champselect.showSummoners) {
         state.lcu.champselect.showSummoners = false;
         this.pluginContext.log.info('Flow: champselect - reset summoners to not show')
+      }
+
+      if (this.recordChampselect) {
+        this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
       }
 
       // Only trigger if event changes, to only load game once
@@ -122,6 +163,10 @@ export class LCUDataReaderController extends Controller {
       if (this.refreshTask) {
         clearInterval(this.refreshTask)
         this.refreshTask = undefined;
+      }
+
+      if (this.recordChampselect) {
+        this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
       }
 
       this.emitChampSelectUpdate()

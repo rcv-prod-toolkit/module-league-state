@@ -40,6 +40,28 @@ module.exports = async (ctx: PluginContext) => {
     unsetGameController.handle(e)
   });
 
+  ctx.LPTE.on(namespace, 'record-champselect', e => {
+    lcuDataReaderController.recordChampselect = e.recordingEnabled
+  });
+  ctx.LPTE.on(namespace, 'replay-champselect', e => {
+    if (e.play) {
+      lcuDataReaderController.replayChampselect()
+    } else {
+      lcuDataReaderController.replayIsPlaying = false
+    }
+  });
+  ctx.LPTE.on(namespace, 'request-recoding-state', e => {
+    ctx.LPTE.emit({
+      meta: {
+        type: e.meta.reply as string,
+        namespace: 'reply',
+        version: 1
+      },
+      recordingEnabled: lcuDataReaderController.recordChampselect,
+      isPlaying: lcuDataReaderController.replayIsPlaying
+    })
+  });
+
   // Listen to external events
   // LCU
   ctx.LPTE.on('lcu', 'lcu-lobby-create', e => {

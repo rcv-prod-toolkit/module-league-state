@@ -94,9 +94,18 @@ const convertTimer = (timer: Timer, currentDate: Date): number => {
   return countdownSec;
 };
 
+export interface ConvertedState {
+    blueTeam: Team
+    redTeam: Team
+    timer: number
+    timeAfterStart: number
+    phase: string
+}
 
-export const convertState = (gameState: LeagueState, champselect: Session, leagueStatic: any) => {
+
+export const convertState = (gameState: LeagueState, champselect: Session, leagueStatic: any): ConvertedState => {
   const currentDate = new Date();
+  const startDate = gameState.lcu.champselect._created
 
   const flattenedActions: Array<Action> = [];
   champselect.actions.forEach(actionGroup => {
@@ -107,11 +116,13 @@ export const convertState = (gameState: LeagueState, champselect: Session, leagu
   const redTeam = convertTeam({ team: champselect.theirTeam, actions: flattenedActions, gameState, leagueStatic })
 
   const timer = convertTimer(champselect.timer, currentDate)
+  const timeAfterStart = currentDate.getTime() - startDate.getTime()
 
   return {
     blueTeam,
     redTeam,
     timer,
+    timeAfterStart,
     phase: champselect.timer.phase
   }
 }
