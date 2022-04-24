@@ -43,6 +43,19 @@ module.exports = async (ctx: PluginContext) => {
   ctx.LPTE.on(namespace, 'record-champselect', e => {
     lcuDataReaderController.recordChampselect = e.recordingEnabled
   });
+  ctx.LPTE.on(namespace, 'reload-recording', e => {
+    lcuDataReaderController.recording = e.data
+  });
+  ctx.LPTE.on(namespace, 'request-recording', e => {
+    ctx.LPTE.emit({
+      meta: {
+        type: e.meta.reply as string,
+        namespace: 'reply',
+        version: 1
+      },
+      data: lcuDataReaderController.recording
+    })
+  });
   ctx.LPTE.on(namespace, 'replay-champselect', e => {
     if (e.play) {
       lcuDataReaderController.replayChampselect()
