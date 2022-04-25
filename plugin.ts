@@ -60,7 +60,7 @@ module.exports = async (ctx: PluginContext) => {
     if (e.play) {
       lcuDataReaderController.replayChampselect()
     } else {
-      lcuDataReaderController.replayIsPlaying = false
+      lcuDataReaderController.stopReplay()
     }
   });
   ctx.LPTE.on(namespace, 'request-recoding-state', e => {

@@ -1,6 +1,6 @@
 import { LPTEvent, PluginContext } from '@rcv-prod-toolkit/types'
 import { Controller } from './Controller'
-import { state } from '../LeagueState'
+import { LeagueState, state } from '../LeagueState'
 import { ConvertedState, convertState } from '../champselect/convertState'
 import { leagueStatic } from '../plugin'
 
@@ -39,7 +39,7 @@ export class LCUDataReaderController extends Controller {
     });
   }
 
-  async replayChampselect (): Promise<void> {
+  replayChampselect (): void {
     if (this.recording.length <= 0) return
 
     this.replayIsPlaying = true
@@ -60,11 +60,40 @@ export class LCUDataReaderController extends Controller {
           isActive: i >= this.recording.length
         });
 
-        if (i >= this.recording.length) {
+        if (this.refreshTask) {
+          clearInterval(this.refreshTask)
+          this.refreshTask = undefined;
+        }
+        this.refreshTask = setInterval(() => {
+          event.timer -= 1
+          this.pluginContext.LPTE.emit({
+            meta: {
+              namespace: this.pluginContext.plugin.module.getName(),
+              type: 'champselect-update',
+              version: 1
+            },
+            data: {
+              ...event
+            },
+            isActive: i >= this.recording.length
+          });
+        }, 1000);
+
+        if (i >= this.recording.length - 1) {
           this.replayIsPlaying = false
+          if (this.refreshTask) {
+            clearInterval(this.refreshTask)
+            this.refreshTask = undefined;
+          }
         }
       }, event.timeAfterStart)
     }
+  }
+
+  stopReplay (): void {
+    this.replayIsPlaying = false
+    if (this.refreshTask) clearInterval(this.refreshTask)
+    this.refreshTask = undefined
   }
 
   async handle (event: LPTEvent): Promise<void> {
@@ -115,10 +144,6 @@ export class LCUDataReaderController extends Controller {
         this.pluginContext.log.info('Flow: champselect - reset summoners to not show')
       }
 
-      if (this.recordChampselect) {
-        this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
-      }
-
       // Only trigger if event changes, to only load game once
       if (state.lcu.champselect && state.lcu.champselect.timer && state.lcu.champselect.timer.phase !== PickBanPhase.GAME_STARTING && event.data.timer.phase === PickBanPhase.GAME_STARTING) {
         this.pluginContext.log.info('Flow: champselect - game started (spectator delay)')
@@ -152,6 +177,10 @@ export class LCUDataReaderController extends Controller {
 
       if (!this.refreshTask) {
         this.refreshTask = setInterval(this.emitChampSelectUpdate, 500);
+      }
+
+      if (this.recordChampselect) {
+        this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
       }
 
       this.emitChampSelectUpdate()
