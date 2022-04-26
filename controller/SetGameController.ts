@@ -12,12 +12,12 @@ export class SetGameController extends Controller {
     };
 
     if (event.by === 'summonerName') {
-      // Load game using provider-webapi
+      // Load game using plugin-webapi
       this.pluginContext.log.debug(`Loading livegame for summoner=${event.summonerName}`);
 
       const gameResponse = await this.pluginContext.LPTE.request({
         meta: {
-          namespace: 'provider-webapi',
+          namespace: 'plugin-webapi',
           type: 'fetch-livegame',
           version: 1
         },
@@ -68,11 +68,11 @@ export class SetGameController extends Controller {
         event.gameId = state.web.live.gameId;
       }
 
-      // Load game using provider-webapi
+      // Load game using plugin-webapi
       this.pluginContext.log.debug(`Loading match for gameId=${event.gameId}`);
       const gameResponse = await this.pluginContext.LPTE.request({
         meta: {
-          namespace: 'provider-webapi',
+          namespace: 'plugin-webapi',
           type: 'fetch-match',
           version: 1
         },
