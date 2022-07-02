@@ -45,6 +45,7 @@ export class LCUDataReaderController extends Controller {
     this.replayIsPlaying = true
     for (let i = 0; i < this.recording.length; i++) {
       const event = this.recording[i]
+
       setTimeout(() => {
         if (!this.replayIsPlaying) return
         
@@ -55,7 +56,8 @@ export class LCUDataReaderController extends Controller {
             version: 1
           },
           data: {
-            ...event
+            ...event,
+            showSummoners: event.phase !== PickBanPhase.GAME_STARTING && event.phase === PickBanPhase.GAME_STARTING
           },
           isActive: i >= this.recording.length
         });
@@ -134,7 +136,9 @@ export class LCUDataReaderController extends Controller {
         this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
       }
 
-      this.emitChampSelectUpdate()
+      if (!this.replayIsPlaying) {
+        this.emitChampSelectUpdate()
+      }
 
       this.pluginContext.log.info('Flow: champselect - active')
     }
@@ -183,7 +187,9 @@ export class LCUDataReaderController extends Controller {
         this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
       }
 
-      this.emitChampSelectUpdate()
+      if (!this.replayIsPlaying) {
+        this.emitChampSelectUpdate()
+      }
     }
     if (event.meta.type === 'lcu-champ-select-delete') {
       state.lcu.champselect._available = false
@@ -198,7 +204,9 @@ export class LCUDataReaderController extends Controller {
         this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
       }
 
-      this.emitChampSelectUpdate()
+      if (!this.replayIsPlaying) {
+        this.emitChampSelectUpdate()
+      }
 
       this.pluginContext.log.info('Flow: champselect - inactive')
     }
