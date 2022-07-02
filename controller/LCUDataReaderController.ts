@@ -67,7 +67,10 @@ export class LCUDataReaderController extends Controller {
           this.refreshTask = undefined;
         }
         this.refreshTask = setInterval(() => {
-          event.timer -= 1
+          if (event.timer > 0) {
+            event.timer -= 1
+          }
+
           this.pluginContext.LPTE.emit({
             meta: {
               namespace: this.pluginContext.plugin.module.getName(),
