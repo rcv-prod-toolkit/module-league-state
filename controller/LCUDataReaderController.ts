@@ -1,159 +1,278 @@
-import { LPTEvent, PluginContext } from '@rcv-prod-toolkit/types'
-import { Controller } from './Controller'
-import { LeagueState, state } from '../LeagueState'
-import { ConvertedState, convertState } from '../champselect/convertState'
-import { leagueStatic } from '../plugin'
+import { LPTEvent, PluginContext } from '@rcv-prod-toolkit/types';
+import { Controller } from './Controller';
+import { state } from '../LeagueState';
+import { ConvertedState, convertState } from '../champselect/convertState';
+import { leagueStatic } from '../plugin';
 
 export enum PickBanPhase {
   GAME_STARTING = 'GAME_STARTING',
-  FINALIZATION = 'FINALIZATION'
+  FINALIZATION = 'FINALIZATION',
 }
 
 export class LCUDataReaderController extends Controller {
-  leagueStatic: any
-  refreshTask?: NodeJS.Timeout
-  recordChampselect = true
-  replayIsPlaying = false
+  leagueStatic: any;
+  refreshTask?: NodeJS.Timeout;
+  recordChampselect = true;
+  replayIsPlaying = false;
 
-  recording: ConvertedState[] = []
+  recording: ConvertedState[] = [];
 
-  constructor (pluginContext: PluginContext) {
-    super(pluginContext)
+  constructor(pluginContext: PluginContext) {
+    super(pluginContext);
 
-    this.emitChampSelectUpdate = this.emitChampSelectUpdate.bind(this)
+    this.emitChampSelectUpdate = this.emitChampSelectUpdate.bind(this);
   }
 
-  emitChampSelectUpdate (): void {
+  emitChampSelectUpdate(): void {
     this.pluginContext.LPTE.emit({
       meta: {
         namespace: this.pluginContext.plugin.module.getName(),
         type: 'champselect-update',
-        version: 1
+        version: 1,
       },
       data: {
         ...convertState(state, state.lcu.champselect as any, leagueStatic),
-        showSummoners: state.lcu.champselect.showSummoners
+        showSummoners: state.lcu.champselect.showSummoners,
       },
-      order: state.lcu.champselect.order !== undefined ? { ...convertState(state, state.lcu.champselect.order as any, leagueStatic) } : undefined,
-      isActive: state.lcu.champselect._available
+      order:
+        state.lcu.champselect.order !== undefined
+          ? {
+            ...convertState(
+              state,
+              state.lcu.champselect.order as any,
+              leagueStatic
+            ),
+          }
+          : undefined,
+      isActive: state.lcu.champselect._available,
     });
   }
 
-  replayChampselect (): void {
-    if (this.recording.length <= 0) return
+  emitLobbyUpdate(): void {
+    this.pluginContext.LPTE.emit({
+      meta: {
+        namespace: this.pluginContext.plugin.module.getName(),
+        type: 'lobby-update',
+        version: 1,
+      },
+      data: [...(state.lcu.lobby.player as Map<string, any>).values()],
+    });
+  }
 
-    this.replayIsPlaying = true
+  async getPlayer(summonerName: string): Promise<any> {
+    try {
+      const replay = await this.pluginContext.LPTE.request({
+        meta: {
+          namespace: 'plugin-webapi',
+          type: 'fetch-league',
+          version: 1,
+        },
+        summonerName,
+      });
+  
+      return {
+        elo: replay?.data,
+        server: replay?.server,
+      };
+    } catch (e) {
+      return {}
+    }
+  }
+
+  replayChampselect(): void {
+    if (this.recording.length <= 0) return;
+
+    this.replayIsPlaying = true;
     for (let i = 0; i < this.recording.length; i++) {
-      const event = this.recording[i]
+      const event = this.recording[i];
 
       setTimeout(() => {
-        if (!this.replayIsPlaying) return
-        
+        if (!this.replayIsPlaying) return;
+
         this.pluginContext.LPTE.emit({
           meta: {
             namespace: this.pluginContext.plugin.module.getName(),
             type: 'champselect-update',
-            version: 1
+            version: 1,
           },
           data: {
             ...event,
-            showSummoners: event.phase !== PickBanPhase.GAME_STARTING && event.phase === PickBanPhase.GAME_STARTING
+            showSummoners:
+              event.phase !== PickBanPhase.GAME_STARTING &&
+              event.phase === PickBanPhase.GAME_STARTING,
           },
-          isActive: i >= this.recording.length
+          isActive: i >= this.recording.length,
         });
 
         if (this.refreshTask) {
-          clearInterval(this.refreshTask)
+          clearInterval(this.refreshTask);
           this.refreshTask = undefined;
         }
         this.refreshTask = setInterval(() => {
           if (event.timer > 0) {
-            event.timer -= 1
+            event.timer -= 1;
           }
 
           this.pluginContext.LPTE.emit({
             meta: {
               namespace: this.pluginContext.plugin.module.getName(),
               type: 'champselect-update',
-              version: 1
+              version: 1,
             },
             data: {
-              ...event
+              ...event,
             },
-            isActive: i >= this.recording.length
+            isActive: i >= this.recording.length,
           });
         }, 1000);
 
         if (i >= this.recording.length - 1) {
-          this.replayIsPlaying = false
+          this.replayIsPlaying = false;
           if (this.refreshTask) {
-            clearInterval(this.refreshTask)
+            clearInterval(this.refreshTask);
             this.refreshTask = undefined;
           }
         }
-      }, event.timeAfterStart)
+      }, event.timeAfterStart);
     }
   }
 
-  stopReplay (): void {
-    this.replayIsPlaying = false
-    if (this.refreshTask) clearInterval(this.refreshTask)
-    this.refreshTask = undefined
+  stopReplay(): void {
+    this.replayIsPlaying = false;
+    if (this.refreshTask) clearInterval(this.refreshTask);
+    this.refreshTask = undefined;
   }
 
-  async handle (event: LPTEvent): Promise<void> {
+  async addOrUpdatePlayer(player: any, i: number): Promise<void> {
+    if (state.lcu.lobby.player === undefined) {
+      state.lcu.lobby.player = new Map<string, any>();
+    }
+
+    if ((state.lcu.lobby.player as Map<string, any>).has(player.summonerName)) {
+      const savedPlayer = (state.lcu.lobby.player as Map<string, any>).get(
+        player.summonerName
+      )!;
+
+      savedPlayer.team = player.teamId;
+      savedPlayer.position = i;
+
+      (state.lcu.lobby.player as Map<string, any>).set(
+        player.summonerName,
+        savedPlayer
+      );
+    } else {
+      const playerInfo = await this.getPlayer(player.summonerName);
+      const server = (playerInfo.server as string)?.replace(/\d/g, '');
+      
+      (state.lcu.lobby.player as Map<string, any>).set(player.summonerName, {
+        name: player.summonerName,
+        elo: playerInfo.elo,
+        level: player.summonerLevel,
+        icon: player.summonerIconId,
+        team: player.teamId,
+        position: i,
+        opgg: server ? `https://euw.op.gg/summoners/${server?.toLowerCase()}/${encodeURIComponent(
+          player.summonerName
+        )}` : '',
+      });
+    }
+
+    this.emitLobbyUpdate();
+  }
+
+  async handle(event: LPTEvent): Promise<void> {
     // Lobby
     if (event.meta.type === 'lcu-lobby-create') {
-      state.lcu.lobby = { ...state.lcu.lobby, ...event.data }
-      state.lcu.lobby._available = true
-      state.lcu.lobby._created = new Date()
-      state.lcu.lobby._updated = new Date()
+      state.lcu.lobby = { ...state.lcu.lobby, ...event.data };
+      state.lcu.lobby._available = true;
+      state.lcu.lobby._created = new Date();
+      state.lcu.lobby._updated = new Date();
 
-      this.pluginContext.log.info('Flow: lobby - active')
+      state.lcu.lobby.player = new Map<string, any>();
+
+      (event.data.gameConfig.customTeam100 as Array<any>).forEach(
+        (player: any, i) => {
+          this.addOrUpdatePlayer(player, i);
+        }
+      );
+      (event.data.gameConfig.customTeam200 as Array<any>).forEach(
+        (player: any, i) => {
+          this.addOrUpdatePlayer(player, i);
+        }
+      );
+
+      this.pluginContext.log.info('Flow: lobby - active');
     }
     if (event.meta.type === 'lcu-lobby-update') {
-      state.lcu.lobby = { ...state.lcu.lobby, ...event.data }
-      state.lcu.lobby._available = true
-      state.lcu.lobby._updated = new Date()
+      state.lcu.lobby = { ...state.lcu.lobby, ...event.data };
+      state.lcu.lobby._available = true;
+      state.lcu.lobby._updated = new Date();
+
+      (event.data.gameConfig.customTeam100 as Array<any>).forEach(
+        (player: any, i) => {
+          this.addOrUpdatePlayer(player, i);
+        }
+      );
+      (event.data.gameConfig.customTeam200 as Array<any>).forEach(
+        (player: any, i) => {
+          this.addOrUpdatePlayer(player, i);
+        }
+      );
     }
     if (event.meta.type === 'lcu-lobby-delete') {
-      state.lcu.lobby._available = false
-      state.lcu.lobby._deleted = new Date()
+      state.lcu.lobby._available = false;
+      state.lcu.lobby._deleted = new Date();
+      state.lcu.lobby.player = new Map<string, any>();
 
-      this.pluginContext.log.info('Flow: lobby - inactive')
+      this.pluginContext.log.info('Flow: lobby - inactive');
+      this.emitLobbyUpdate();
     }
 
     // Champ select
     if (event.meta.type === 'lcu-champ-select-create') {
-      state.lcu.champselect = { ...state.lcu.champselect, ...event.data }
-      state.lcu.champselect._available = true
-      state.lcu.champselect._created = new Date()
-      state.lcu.champselect._updated = new Date()
-      this.recording = []
+      state.lcu.champselect = { ...state.lcu.champselect, ...event.data };
+      state.lcu.champselect._available = true;
+      state.lcu.champselect._created = new Date();
+      state.lcu.champselect._updated = new Date();
+      this.recording = [];
 
       if (!this.refreshTask) {
         this.refreshTask = setInterval(this.emitChampSelectUpdate, 500);
       }
 
       if (this.recordChampselect) {
-        this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
+        this.recording.push(
+          convertState(state, state.lcu.champselect as any, leagueStatic)
+        );
       }
 
       if (!this.replayIsPlaying) {
-        this.emitChampSelectUpdate()
+        this.emitChampSelectUpdate();
       }
 
-      this.pluginContext.log.info('Flow: champselect - active')
+      this.pluginContext.log.info('Flow: champselect - active');
     }
     if (event.meta.type === 'lcu-champ-select-update') {
-      if (event.data.timer.phase !== PickBanPhase.GAME_STARTING && state.lcu.champselect.showSummoners) {
+      if (
+        event.data.timer.phase !== PickBanPhase.GAME_STARTING &&
+        state.lcu.champselect.showSummoners
+      ) {
         state.lcu.champselect.showSummoners = false;
-        this.pluginContext.log.info('Flow: champselect - reset summoners to not show')
+        this.pluginContext.log.info(
+          'Flow: champselect - reset summoners to not show'
+        );
       }
 
       // Only trigger if event changes, to only load game once
-      if (state.lcu.champselect && state.lcu.champselect.timer && state.lcu.champselect.timer.phase !== PickBanPhase.GAME_STARTING && event.data.timer.phase === PickBanPhase.GAME_STARTING) {
-        this.pluginContext.log.info('Flow: champselect - game started (spectator delay)')
+      if (
+        state.lcu.champselect &&
+        state.lcu.champselect.timer &&
+        state.lcu.champselect.timer.phase !== PickBanPhase.GAME_STARTING &&
+        event.data.timer.phase === PickBanPhase.GAME_STARTING
+      ) {
+        this.pluginContext.log.info(
+          'Flow: champselect - game started (spectator delay)'
+        );
         state.lcu.champselect.showSummoners = true;
 
         // Continue in flow
@@ -161,77 +280,86 @@ export class LCUDataReaderController extends Controller {
           meta: {
             namespace: this.pluginContext.plugin.module.getName(),
             type: 'set-game',
-            version: 1
+            version: 1,
           },
           by: 'summonerName',
-          summonerName: state.lcu.lobby.members[0].summonerName
-        })
+          summonerName: state.lcu.lobby.members[0].summonerName,
+        });
       } else {
         // this.pluginContext.log.info('Flow: champselect - reset summoners to now show')
         // state.lcu.champselect.showSummoners = false;
       }
 
       // Only trigger if we're now in finalization, save order
-      if (state.lcu.champselect && state.lcu.champselect.timer && state.lcu.champselect.timer.phase !== PickBanPhase.FINALIZATION && event.data.timer.phase === PickBanPhase.FINALIZATION) {
+      if (
+        state.lcu.champselect &&
+        state.lcu.champselect.timer &&
+        state.lcu.champselect.timer.phase !== PickBanPhase.FINALIZATION &&
+        event.data.timer.phase === PickBanPhase.FINALIZATION
+      ) {
         state.lcu.champselect.order = event.data;
       }
 
       let summonerState = state.lcu.champselect.showSummoners;
-      state.lcu.champselect = { ...state.lcu.champselect, ...event.data }
+      state.lcu.champselect = { ...state.lcu.champselect, ...event.data };
       state.lcu.champselect.showSummoners = summonerState;
-      state.lcu.champselect._available = true
-      state.lcu.champselect._updated = new Date()
+      state.lcu.champselect._available = true;
+      state.lcu.champselect._updated = new Date();
 
       if (!this.refreshTask) {
         this.refreshTask = setInterval(this.emitChampSelectUpdate, 500);
       }
 
       if (this.recordChampselect) {
-        this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
+        this.recording.push(
+          convertState(state, state.lcu.champselect as any, leagueStatic)
+        );
       }
 
       if (!this.replayIsPlaying) {
-        this.emitChampSelectUpdate()
+        this.emitChampSelectUpdate();
       }
     }
     if (event.meta.type === 'lcu-champ-select-delete') {
-      state.lcu.champselect._available = false
-      state.lcu.champselect._deleted = new Date()
+      state.lcu.champselect._available = false;
+      state.lcu.champselect._deleted = new Date();
 
       if (this.refreshTask) {
-        clearInterval(this.refreshTask)
+        clearInterval(this.refreshTask);
         this.refreshTask = undefined;
       }
 
       if (this.recordChampselect) {
-        this.recording.push(convertState(state, state.lcu.champselect as any, leagueStatic))
+        this.recording.push(
+          convertState(state, state.lcu.champselect as any, leagueStatic)
+        );
       }
 
       if (!this.replayIsPlaying) {
-        this.emitChampSelectUpdate()
+        this.emitChampSelectUpdate();
       }
 
-      this.pluginContext.log.info('Flow: champselect - inactive')
+      this.pluginContext.log.info('Flow: champselect - inactive');
     }
 
     // End of game
     if (event.meta.type === 'lcu-end-of-game-create') {
-      state.lcu.eog = event.data
-      state.lcu.eog._available = true
+      state.lcu.eog = event.data;
+      state.lcu.eog._available = true;
 
-      this.pluginContext.log.info('Flow: end of game - active')
+      this.pluginContext.log.info('Flow: end of game - active');
       // Also make sure post game is loaded
       this.pluginContext.LPTE.emit({
         meta: {
           namespace: this.pluginContext.plugin.module.getName(),
           type: 'set-game',
-          version: 1
+          version: 1,
         },
-        by: 'gameId'
-      })
+        by: 'gameId',
+      });
     }
     if (event.meta.type === 'lcu-end-of-game-delete') {
-      state.lcu.eog._available = false
+      state.lcu.eog._available = false;
     }
   }
 }

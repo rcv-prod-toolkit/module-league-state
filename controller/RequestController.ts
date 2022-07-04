@@ -16,6 +16,10 @@ export class RequestController extends Controller {
         ...state,
         lcu: {
           ...state.lcu,
+          lobby: {
+            ...state.lcu.lobby,
+            player: state.lcu.lobby.player ? [...(state.lcu.lobby.player as Map<string, any>).values()] : []
+          },
           champselect: {
             ...state.lcu.champselect,
             order: state.lcu.champselect.order !== undefined ? { ...convertState(state, state.lcu.champselect.order as any, leagueStatic) } : undefined,
