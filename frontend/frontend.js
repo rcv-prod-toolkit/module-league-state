@@ -41,7 +41,7 @@ const updateUi = (state) => {
   ReactDOM.render(e(ParticipantTable, { participants: state.webLive.participants || [] }), document.getElementById('participant-table'));
   ReactDOM.render(e(BanTable, { bans: state.webLive.bannedChampions || [] }), document.getElementById('ban-table'));
 
-  /* $('.data--game_id').text(state.webLive.gameId);
+  /* $('.data--gameid').text(state.webLive.gameId);
   $('.data--game_start').text(new Date(state.webLive.gameStartTime).toLocaleString());
   $('.data--game_platform').text(state.webLive.platformId); */
 }
