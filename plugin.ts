@@ -1,14 +1,14 @@
 import type { PluginContext } from '@rcv-prod-toolkit/types'
-import { RequestController } from './controller/RequestController';
-import { SetGameController } from './controller/SetGameController';
-import { UnsetGameController } from './controller/UnsetGameController';
-import { LCUDataReaderController } from './controller/LCUDataReaderController';
-import { state } from './LeagueState';
+import { RequestController } from './controller/RequestController'
+import { SetGameController } from './controller/SetGameController'
+import { UnsetGameController } from './controller/UnsetGameController'
+import { LCUDataReaderController } from './controller/LCUDataReaderController'
+import { state } from './LeagueState'
 
-export let leagueStatic: any;
+export let leagueStatic: any
 
 module.exports = async (ctx: PluginContext) => {
-  const namespace = ctx.plugin.module.getName();
+  const namespace = ctx.plugin.module.getName()
   // Register new UI page
   ctx.LPTE.emit({
     meta: {
@@ -16,12 +16,14 @@ module.exports = async (ctx: PluginContext) => {
       namespace: 'ui',
       version: 1
     },
-    pages: [{
-      name: 'LoL: Game State',
-      frontend: 'frontend',
-      id: `op-${namespace}`
-    }]
-  });
+    pages: [
+      {
+        name: 'LoL: Game State',
+        frontend: 'frontend',
+        id: `op-${namespace}`
+      }
+    ]
+  })
 
   const requestController = new RequestController(ctx)
   const setGameController = new SetGameController(ctx)
@@ -29,25 +31,25 @@ module.exports = async (ctx: PluginContext) => {
   let lcuDataReaderController: LCUDataReaderController
 
   // Answer requests to get state
-  ctx.LPTE.on(namespace, 'request', e => {
+  ctx.LPTE.on(namespace, 'request', (e) => {
     requestController.handle(e)
-  });
+  })
 
   // Set and unset game
-  ctx.LPTE.on(namespace, 'set-game', async e => {
+  ctx.LPTE.on(namespace, 'set-game', async (e) => {
     setGameController.handle(e)
-  });
-  ctx.LPTE.on(namespace, 'unset-game', e => {
+  })
+  ctx.LPTE.on(namespace, 'unset-game', (e) => {
     unsetGameController.handle(e)
-  });
+  })
 
-  ctx.LPTE.on(namespace, 'record-champselect', e => {
+  ctx.LPTE.on(namespace, 'record-champselect', (e) => {
     lcuDataReaderController.recordChampselect = e.recordingEnabled
-  });
-  ctx.LPTE.on(namespace, 'reload-recording', e => {
+  })
+  ctx.LPTE.on(namespace, 'reload-recording', (e) => {
     lcuDataReaderController.recording = e.data
-  });
-  ctx.LPTE.on(namespace, 'request-recording', e => {
+  })
+  ctx.LPTE.on(namespace, 'request-recording', (e) => {
     ctx.LPTE.emit({
       meta: {
         type: e.meta.reply as string,
@@ -56,15 +58,15 @@ module.exports = async (ctx: PluginContext) => {
       },
       data: lcuDataReaderController.recording
     })
-  });
-  ctx.LPTE.on(namespace, 'replay-champselect', e => {
+  })
+  ctx.LPTE.on(namespace, 'replay-champselect', (e) => {
     if (e.play) {
       lcuDataReaderController.replayChampselect()
     } else {
       lcuDataReaderController.stopReplay()
     }
-  });
-  ctx.LPTE.on(namespace, 'request-recoding-state', e => {
+  })
+  ctx.LPTE.on(namespace, 'request-recoding-state', (e) => {
     ctx.LPTE.emit({
       meta: {
         type: e.meta.reply as string,
@@ -74,37 +76,37 @@ module.exports = async (ctx: PluginContext) => {
       recordingEnabled: lcuDataReaderController.recordChampselect,
       isPlaying: lcuDataReaderController.replayIsPlaying
     })
-  });
+  })
 
   // Listen to external events
   // LCU
-  ctx.LPTE.on('lcu', 'lcu-lobby-create', e => {
+  ctx.LPTE.on('lcu', 'lcu-lobby-create', (e) => {
     lcuDataReaderController.handle(e)
-  });
-  ctx.LPTE.on('lcu', 'lcu-lobby-update', e => {
+  })
+  ctx.LPTE.on('lcu', 'lcu-lobby-update', (e) => {
     lcuDataReaderController.handle(e)
-  });
-  ctx.LPTE.on('lcu', 'lcu-lobby-delete', e => {
+  })
+  ctx.LPTE.on('lcu', 'lcu-lobby-delete', (e) => {
     lcuDataReaderController.handle(e)
-  });
-  ctx.LPTE.on('lcu', 'lcu-champ-select-create', e => {
+  })
+  ctx.LPTE.on('lcu', 'lcu-champ-select-create', (e) => {
     lcuDataReaderController.handle(e)
-  });
-  ctx.LPTE.on('lcu', 'lcu-champ-select-update', e => {
+  })
+  ctx.LPTE.on('lcu', 'lcu-champ-select-update', (e) => {
     lcuDataReaderController.handle(e)
-  });
-  ctx.LPTE.on('lcu', 'lcu-champ-select-delete', e => {
+  })
+  ctx.LPTE.on('lcu', 'lcu-champ-select-delete', (e) => {
     lcuDataReaderController.handle(e)
-  });
-  ctx.LPTE.on('lcu', 'lcu-end-of-game-create', e => {
+  })
+  ctx.LPTE.on('lcu', 'lcu-end-of-game-create', (e) => {
     lcuDataReaderController.handle(e)
-  });
-  ctx.LPTE.on('lcu', 'lcu-end-of-game-update', e => {
+  })
+  ctx.LPTE.on('lcu', 'lcu-end-of-game-update', (e) => {
     lcuDataReaderController.handle(e)
-  });
-  ctx.LPTE.on('lcu', 'lcu-end-of-game-delete', e => {
+  })
+  ctx.LPTE.on('lcu', 'lcu-end-of-game-delete', (e) => {
     lcuDataReaderController.handle(e)
-  });
+  })
 
   // Emit event that we're ready to operate
   ctx.LPTE.emit({
@@ -114,10 +116,10 @@ module.exports = async (ctx: PluginContext) => {
       version: 1
     },
     status: 'RUNNING'
-  });
+  })
 
-  ctx.LPTE.on('module-league-static', 'static-loaded', async (e) => {  
+  ctx.LPTE.on('module-league-static', 'static-loaded', async (e) => {
     leagueStatic = e.constants
     lcuDataReaderController = new LCUDataReaderController(ctx)
   })
-};
+}

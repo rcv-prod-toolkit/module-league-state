@@ -1,8 +1,9 @@
-<link rel="stylesheet" href="/pages/op-module-league-state/style.css">
+<link rel="stylesheet" href="/pages/op-module-league-state/style.css" />
 <script src="/pages/op-module-league-state/frontend.js"></script>
 
 <h1>League Game State</h1>
-This page contains configuration and operation elements for the <code>module-league-state</code> module.
+This page contains configuration and operation elements for the
+<code>module-league-state</code> module.
 
 <h2>Flow</h2>
 <table class="table">
@@ -70,9 +71,12 @@ This page contains configuration and operation elements for the <code>module-lea
 
 <div class="setgame" id="setgame-container">
   <hr />
-  <h2>You have not yet set up a game. </h2>
+  <h2>You have not yet set up a game.</h2>
   <h3>Set game by player name</h3>
-  <p>Only works if the game is currently running. Enter a summoner name, and load the live game.</p>
+  <p>
+    Only works if the game is currently running. Enter a summoner name, and load
+    the live game.
+  </p>
   <form onsubmit="event.preventDefault(); formLoadByName();">
     <input type="text" id="name" />
     <input type="submit" value="Load game" />
@@ -87,11 +91,27 @@ This page contains configuration and operation elements for the <code>module-lea
 
 <div class="gameinfo" id="gameinfo-container">
   <hr />
-  <h2>Game is loaded: #<span data-jspath=".gameId"></span> (<span data-jspath=".platformId">PLATFORM</span>) via plugin-webapi live</h2>
+  <h2>
+    Game is loaded: #<span data-jspath=".gameId"></span> (<span
+      data-jspath=".platformId"
+      >PLATFORM</span
+    >) via plugin-webapi live
+  </h2>
   <ul>
     <li>Game mode: <span data-jspath=".gameMode"></span></li>
-    <li>Game map: <span data-jspath=".mapConstants.mapName"></span> (<span data-jspath=".mapId"></span>)</li>
-    <li>Game queue: <span data-jspath=".gameQueueConstants.map"></span> - <span data-jspath=".gameQueueConstants.description"></span> (<span data-jspath=".gameQueueConfigId"></span>)</li>
+    <li>
+      Game map: <span data-jspath=".mapConstants.mapName"></span> (<span
+        data-jspath=".mapId"
+      ></span
+      >)
+    </li>
+    <li>
+      Game queue: <span data-jspath=".gameQueueConstants.map"></span> -
+      <span data-jspath=".gameQueueConstants.description"></span> (<span
+        data-jspath=".gameQueueConfigId"
+      ></span
+      >)
+    </li>
     <li>Game start: <span data-jspath=".gameStartTime" data-isdate></span></li>
   </ul>
 
@@ -106,7 +126,10 @@ This page contains configuration and operation elements for the <code>module-lea
     <form onsubmit="event.preventDefault(); formUnsetGame();">
       <input type="submit" value="Unset game" />
     </form>
-    <form style="margin-left: 10px;" onsubmit="event.preventDefault(); formLoadMatchByLive();">
+    <form
+      style="margin-left: 10px"
+      onsubmit="event.preventDefault(); formLoadMatchByLive();"
+    >
       <input type="submit" value="Load match (postgame)" />
     </form>
   </div>

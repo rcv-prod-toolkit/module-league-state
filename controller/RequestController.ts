@@ -5,7 +5,7 @@ import { convertState } from '../champselect/convertState'
 import { leagueStatic } from '../plugin'
 
 export class RequestController extends Controller {
-  async handle (event: LPTEvent): Promise<void> {
+  async handle(event: LPTEvent): Promise<void> {
     this.pluginContext.LPTE.emit({
       meta: {
         type: event.meta.reply as string,
@@ -18,11 +18,22 @@ export class RequestController extends Controller {
           ...state.lcu,
           lobby: {
             ...state.lcu.lobby,
-            player: state.lcu.lobby.player ? [...(state.lcu.lobby.player as Map<string, any>).values()] : []
+            player: state.lcu.lobby.player
+              ? [...(state.lcu.lobby.player as Map<string, any>).values()]
+              : []
           },
           champselect: {
             ...state.lcu.champselect,
-            order: state.lcu.champselect.order !== undefined ? { ...convertState(state, state.lcu.champselect.order as any, leagueStatic) } : undefined,
+            order:
+              state.lcu.champselect.order !== undefined
+                ? {
+                    ...convertState(
+                      state,
+                      state.lcu.champselect.order as any,
+                      leagueStatic
+                    )
+                  }
+                : undefined
           }
         }
       }

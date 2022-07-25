@@ -12,7 +12,7 @@ export class LeagueStateWeb {
   }
   timeline: LeagueStateDataStructure = {
     _available: false
-  } 
+  }
 }
 
 export class LeagueStateLCU {

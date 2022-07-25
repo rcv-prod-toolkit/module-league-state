@@ -1,16 +1,22 @@
-const e = React.createElement;
+const e = React.createElement
 const namespace = 'module-league-state'
 
 const setStatus = (componentName, component) => {
   // Status
   if (component._available) {
     $(`#${componentName}-status`).html('<span class="green">Live</span>')
-    $(`#${componentName}-available`).text(new Date(component._created).toLocaleString())
-    $(`#${componentName}-update`).text(new Date(component._updated).toLocaleString())
+    $(`#${componentName}-available`).text(
+      new Date(component._created).toLocaleString()
+    )
+    $(`#${componentName}-update`).text(
+      new Date(component._updated).toLocaleString()
+    )
   } else {
     $(`#${componentName}-status`).html('<span class="orange">Not Live</span>')
     if (component._deleted) {
-      $(`#${componentName}-unavailable`).text(new Date(component._deleted).toLocaleString())
+      $(`#${componentName}-unavailable`).text(
+        new Date(component._deleted).toLocaleString()
+      )
     }
   }
 }
@@ -47,7 +53,7 @@ const updateUi = (state) => {
 }
 
 const formLoadByName = async () => {
-  const name = $('#name').val();
+  const name = $('#name').val()
 
   await LPTE.request({
     meta: {
@@ -57,13 +63,13 @@ const formLoadByName = async () => {
     },
     by: 'summonerName',
     summonerName: name
-  });
+  })
 
-  await updateState();
+  await updateState()
 }
 
 const formLoadByGameId = async () => {
-  const gameId = $('#gameid').val();
+  const gameId = $('#gameid').val()
 
   await LPTE.request({
     meta: {
@@ -73,9 +79,9 @@ const formLoadByGameId = async () => {
     },
     by: 'gameId',
     gameId
-  });
+  })
 
-  await updateState();
+  await updateState()
 }
 
 const formLoadMatchByLive = async () => {
@@ -86,9 +92,9 @@ const formLoadMatchByLive = async () => {
       version: 1
     },
     by: 'gameId'
-  });
+  })
 
-  await updateState();
+  await updateState()
 }
 
 const formUnsetGame = async () => {
@@ -98,9 +104,9 @@ const formUnsetGame = async () => {
       type: 'unset-game',
       version: 1
     }
-  });
+  })
 
-  await updateState();
+  await updateState()
 }
 
 const updateState = async () => {
@@ -110,63 +116,77 @@ const updateState = async () => {
       type: 'request',
       version: 1
     }
-  });
+  })
 
-  updateUi(response.state);
+  updateUi(response.state)
 }
 
-const getTeam = teamId => teamId === 100 ? 'blue' : 'red';
+const getTeam = (teamId) => (teamId === 100 ? 'blue' : 'red')
 
-const getParticipantRow = participant => [
+const getParticipantRow = (participant) => [
   participant.summonerName,
   getTeam(participant.teamId),
   participant.champion.name,
   participant.spell1Id,
   participant.spell2Id
-];
-
-const ParticipantTable = ({ participants }) => 
-  e('table', { className: 'table' }, [
-    e(
-      'thead', {}, React.createElement(
-        'tr', {}, ['Name', 'Team', 'Champion', 'Spell 1', 'Spell 2'].map(content => e('th', {}, content))
-        )
-    ),
-    e('tbody', {},
-      participants.map((participant, index) => [
-        e('tr', {'data-toggle': 'collapse', 'data-target': `.participant${index}`},
-          getParticipantRow(participant).map(td =>
-            e('td', {}, td)
-          )
-        ),
-        e('td', { colspan: 5, className: `collapse participant${index}` }, JSON.stringify(participant))
-      ])
-    )
-  ]);
-
-const getBanRow = ban => [
-  ban.pickTurn,
-  getTeam(ban.teamId),
-  ban.championId
 ]
 
-const BanTable = ({ bans }) => 
+const ParticipantTable = ({ participants }) =>
   e('table', { className: 'table' }, [
     e(
-      'thead', {}, React.createElement(
-        'tr', {}, ['Turn', 'Team', 'Champion'].map(content => e('th', {}, content))
+      'thead',
+      {},
+      React.createElement(
+        'tr',
+        {},
+        ['Name', 'Team', 'Champion', 'Spell 1', 'Spell 2'].map((content) =>
+          e('th', {}, content)
         )
+      )
     ),
-    e('tbody', {},
+    e(
+      'tbody',
+      {},
+      participants.map((participant, index) => [
+        e(
+          'tr',
+          { 'data-toggle': 'collapse', 'data-target': `.participant${index}` },
+          getParticipantRow(participant).map((td) => e('td', {}, td))
+        ),
+        e(
+          'td',
+          { colspan: 5, className: `collapse participant${index}` },
+          JSON.stringify(participant)
+        )
+      ])
+    )
+  ])
+
+const getBanRow = (ban) => [ban.pickTurn, getTeam(ban.teamId), ban.championId]
+
+const BanTable = ({ bans }) =>
+  e('table', { className: 'table' }, [
+    e(
+      'thead',
+      {},
+      React.createElement(
+        'tr',
+        {},
+        ['Turn', 'Team', 'Champion'].map((content) => e('th', {}, content))
+      )
+    ),
+    e(
+      'tbody',
+      {},
       bans.map((ban, index) =>
-        e('tr', {'data-toggle': 'collapse', 'data-target': `.ban${index}`},
-          getBanRow(ban).map(td =>
-            e('td', {}, td)
-          )
+        e(
+          'tr',
+          { 'data-toggle': 'collapse', 'data-target': `.ban${index}` },
+          getBanRow(ban).map((td) => e('td', {}, td))
         )
       )
     )
-  ]);
+  ])
 
 const start = async () => {
   setInterval(updateState, 5000)
