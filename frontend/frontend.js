@@ -1,67 +1,45 @@
-const e = React.createElement
-const namespace = 'module-league-state'
-
 const setStatus = (componentName, component) => {
   // Status
   if (component._available) {
-    $(`#${componentName}-status`).html('<span class="green">Live</span>')
-    $(`#${componentName}-available`).text(
-      new Date(component._created).toLocaleString()
-    )
-    $(`#${componentName}-update`).text(
-      new Date(component._updated).toLocaleString()
-    )
+    document.querySelector(`#${componentName}-status`).innerHTML = '<span class="green">Live</span>'
+    document.querySelector(`#${componentName}-available`).innerHTML = new Date(component._created).toLocaleString()
+
+    document.querySelector(`#${componentName}-update`).innerHTML = new Date(component._updated).toLocaleString()
   } else {
-    $(`#${componentName}-status`).html('<span class="orange">Not Live</span>')
+    document.querySelector(`#${componentName}-status`).innerHTML = '<span class="orange">Not Live</span>'
     if (component._deleted) {
-      $(`#${componentName}-unavailable`).text(
-        new Date(component._deleted).toLocaleString()
-      )
+      document.querySelector(`#${componentName}-unavailable`).innerHTML = new Date(component._deleted).toLocaleString()
     }
   }
 }
 
 const updateUi = (state) => {
-  console.log(state)
-
   // Flow
-  setStatus('lcu-lobby', state.lcu.lobby)
-  setStatus('lcu-champ-select', state.lcu.champselect)
-  setStatus('lcu-end-of-game', state.lcu.eog)
-  setStatus('web-live', state.web.live)
-  setStatus('web-match', state.web.match)
-  setStatus('web-timeline', state.web.timeline)
-  /* setStatus('in-game-live', state.game.live) */
+  setStatus("lcu-lobby", state.lcu.lobby)
+  setStatus("lcu-champ-select", state.lcu.champselect)
+  setStatus("lcu-end-of-game", state.lcu.eog)
+  setStatus("web-live", state.web.live)
+  setStatus("web-match", state.web.match)
+  setStatus("web-timeline", state.web.timeline)
 
-  /* $('#status').text(state.state);
-
-  if (state.state === 'SET') {
-    $('#gameinfo-container').css('display', 'block');
-    $('#setgame-container').css('display', 'none');
-  } else {
-    $('#gameinfo-container').css('display', 'none');
-    $('#setgame-container').css('display', 'block')
+  if (state?.web?.live?.participants) {
+    ParticipantTable(state.web.live.participants)
   }
-
-  // oneWayBinding('gameinfo-container', state.webLive);
-  ReactDOM.render(e(ParticipantTable, { participants: state.webLive.participants || [] }), document.getElementById('participant-table'));
-  ReactDOM.render(e(BanTable, { bans: state.webLive.bannedChampions || [] }), document.getElementById('ban-table'));
-
-  /* $('.data--gameid').text(state.webLive.gameId);
-  $('.data--game_start').text(new Date(state.webLive.gameStartTime).toLocaleString());
-  $('.data--game_platform').text(state.webLive.platformId); */
+  if (state?.web?.live?.bannedChampions) {
+    BanTable(state.web.live.bannedChampions)
+  }
 }
 
 const formLoadByName = async () => {
-  const name = $('#name').val()
+  const name = document.querySelector("#name").value
 
   await LPTE.request({
     meta: {
-      namespace,
-      type: 'set-game',
+      namespace: "module-league-state",
+      type: "set-game",
       version: 1
     },
-    by: 'summonerName',
+    by: "summonerName",
     summonerName: name
   })
 
@@ -69,15 +47,15 @@ const formLoadByName = async () => {
 }
 
 const formLoadByGameId = async () => {
-  const gameId = $('#gameid').val()
+  const gameId = document.querySelector("#gameid").value
 
   await LPTE.request({
     meta: {
-      namespace,
-      type: 'set-game',
+      namespace: "module-league-state",
+      type: "set-game",
       version: 1
     },
-    by: 'gameId',
+    by: "gameId",
     gameId
   })
 
@@ -87,11 +65,11 @@ const formLoadByGameId = async () => {
 const formLoadMatchByLive = async () => {
   await LPTE.request({
     meta: {
-      namespace,
-      type: 'set-game',
+      namespace: "module-league-state",
+      type: "set-game",
       version: 1
     },
-    by: 'gameId'
+    by: "gameId"
   })
 
   await updateState()
@@ -100,8 +78,8 @@ const formLoadMatchByLive = async () => {
 const formUnsetGame = async () => {
   await LPTE.request({
     meta: {
-      namespace,
-      type: 'unset-game',
+      namespace: "module-league-state",
+      type: "unset-game",
       version: 1
     }
   })
@@ -112,8 +90,8 @@ const formUnsetGame = async () => {
 const updateState = async () => {
   const response = await LPTE.request({
     meta: {
-      namespace,
-      type: 'request',
+      namespace: "module-league-state",
+      type: "request",
       version: 1
     }
   })
@@ -121,72 +99,67 @@ const updateState = async () => {
   updateUi(response.state)
 }
 
-const getTeam = (teamId) => (teamId === 100 ? 'blue' : 'red')
+const getTeam = (teamId) => (teamId === 100 ? "blue" : "red")
 
-const getParticipantRow = (participant) => [
-  participant.summonerName,
-  getTeam(participant.teamId),
-  participant.champion.name,
-  participant.spell1Id,
-  participant.spell2Id
-]
+const ParticipantTable = ({ participants }) => {
+  const tbl = document.createElement("table")
+  tbl.classList.add("table")
 
-const ParticipantTable = ({ participants }) =>
-  e('table', { className: 'table' }, [
-    e(
-      'thead',
-      {},
-      React.createElement(
-        'tr',
-        {},
-        ['Name', 'Team', 'Champion', 'Spell 1', 'Spell 2'].map((content) =>
-          e('th', {}, content)
-        )
-      )
-    ),
-    e(
-      'tbody',
-      {},
-      participants.map((participant, index) => [
-        e(
-          'tr',
-          { 'data-toggle': 'collapse', 'data-target': `.participant${index}` },
-          getParticipantRow(participant).map((td) => e('td', {}, td))
-        ),
-        e(
-          'td',
-          { colspan: 5, className: `collapse participant${index}` },
-          JSON.stringify(participant)
-        )
-      ])
-    )
-  ])
+  const tblH = document.createElement("thead")
+  const tblHRow = tblH.insertRow()
 
-const getBanRow = (ban) => [ban.pickTurn, getTeam(ban.teamId), ban.championId]
+  ["Name", "Team", "Champion", "Spell 1", "Spell 2"].forEach((element) => {
+    const th = tblHRow.insertCell()
+    th.innerText = element
+  })
 
-const BanTable = ({ bans }) =>
-  e('table', { className: 'table' }, [
-    e(
-      'thead',
-      {},
-      React.createElement(
-        'tr',
-        {},
-        ['Turn', 'Team', 'Champion'].map((content) => e('th', {}, content))
-      )
-    ),
-    e(
-      'tbody',
-      {},
-      bans.map((ban, index) =>
-        e(
-          'tr',
-          { 'data-toggle': 'collapse', 'data-target': `.ban${index}` },
-          getBanRow(ban).map((td) => e('td', {}, td))
-        )
-      )
-    )
-  ])
+  tbl.appendChild(tblH)
+
+  const tblB = document.createElement("tbody")
+
+  participants.forEach(participant => {
+    const tr = tblB.insertRow()
+    tr.insertCell().innerText = participant.summonerName
+    tr.insertCell().innerText = getTeam(participant.teamId)
+    tr.insertCell().innerText = participant.champion.name
+    tr.insertCell().innerText = participant.spell1Id
+    tr.insertCell().innerText = participant.spell2Id
+  })
+
+  tbl.appendChild(tblB)
+
+  document.querySelector("#participant-table").innerHTML = ""
+  document.querySelector("#participant-table").appendChild(tbl)
+}
+
+const BanTable = ({ bans }) => {
+  const tbl = document.createElement("table")
+  tbl.classList.add("table")
+
+  const tblH = document.createElement("thead")
+  const tblHRow = tblH.insertRow()
+
+  ["Turn", "Team", "Champion"].forEach((element) => {
+    const th = tblHRow.insertCell()
+    th.innerText = element
+  })
+
+  tbl.appendChild(tblH)
+
+  const tblB = document.createElement("tbody")
+
+  bans.forEach(ban => {
+    const tr = tblB.insertRow()
+    tr.insertCell().innerText = ban.pickTurn
+    tr.insertCell().innerText = getTeam(ban.teamId)
+    tr.insertCell().innerText = ban.championId
+  })
+
+  tbl.appendChild(tblB)
+
+  document.querySelector("#ban-table").innerHTML = ""
+  document.querySelector("#ban-table").appendChild(tbl)
+}
 
 const start = async () => {
   setInterval(updateState, 5000)
