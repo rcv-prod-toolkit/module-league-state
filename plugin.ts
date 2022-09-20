@@ -3,7 +3,6 @@ import { RequestController } from './controller/RequestController'
 import { SetGameController } from './controller/SetGameController'
 import { UnsetGameController } from './controller/UnsetGameController'
 import { LCUDataReaderController } from './controller/LCUDataReaderController'
-import { state } from './LeagueState'
 
 export let leagueStatic: any
 
