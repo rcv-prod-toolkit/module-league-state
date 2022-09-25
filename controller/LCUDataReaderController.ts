@@ -190,16 +190,33 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby._updated = new Date()
 
       state.lcu.lobby.player = new Map<string, any>()
-      ;(event.data.gameConfig.customTeam100 as Array<any>).forEach(
-        (player: any, i) => {
-          this.addOrUpdatePlayer(player, i)
-        }
-      )
-      ;(event.data.gameConfig.customTeam200 as Array<any>).forEach(
-        (player: any, i) => {
-          this.addOrUpdatePlayer(player, i)
-        }
-      )
+
+      if (event.data.gameConfig.customTeam100.length <= 0) {
+        state.lcu.lobby.player.forEach((v: any, k: string) => {
+          if (v.team === 100) {
+            state.lcu.lobby.player.delete(k)
+          }
+        })
+      } else {
+        ;(event.data.gameConfig.customTeam100 as Array<any>).forEach(
+          (player: any, i) => {
+            this.addOrUpdatePlayer(player, i)
+          }
+        )
+      }
+      if (event.data.gameConfig.customTeam200.length <= 0) {
+        state.lcu.lobby.player.forEach((v: any, k: string) => {
+          if (v.team === 200) {
+            state.lcu.lobby.player.delete(k)
+          }
+        })
+      } else {
+        ;(event.data.gameConfig.customTeam200 as Array<any>).forEach(
+          (player: any, i) => {
+            this.addOrUpdatePlayer(player, i)
+          }
+        )
+      }
 
       this.pluginContext.log.info('Flow: lobby - active')
     }
@@ -207,16 +224,33 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby = { ...state.lcu.lobby, ...event.data }
       state.lcu.lobby._available = true
       state.lcu.lobby._updated = new Date()
-      ;(event.data.gameConfig.customTeam100 as Array<any>).forEach(
-        (player: any, i) => {
-          this.addOrUpdatePlayer(player, i)
-        }
-      )
-      ;(event.data.gameConfig.customTeam200 as Array<any>).forEach(
-        (player: any, i) => {
-          this.addOrUpdatePlayer(player, i)
-        }
-      )
+
+      if (event.data.gameConfig.customTeam100.length <= 0) {
+        state.lcu.lobby.player.forEach((v: any, k: string) => {
+          if (v.team === 100) {
+            state.lcu.lobby.player.delete(k)
+          }
+        })
+      } else {
+        ;(event.data.gameConfig.customTeam100 as Array<any>).forEach(
+          (player: any, i) => {
+            this.addOrUpdatePlayer(player, i)
+          }
+        )
+      }
+      if (event.data.gameConfig.customTeam200.length <= 0) {
+        state.lcu.lobby.player.forEach((v: any, k: string) => {
+          if (v.team === 200) {
+            state.lcu.lobby.player.delete(k)
+          }
+        })
+      } else {
+        ;(event.data.gameConfig.customTeam200 as Array<any>).forEach(
+          (player: any, i) => {
+            this.addOrUpdatePlayer(player, i)
+          }
+        )
+      }
     }
     if (event.meta.type === 'lcu-lobby-delete') {
       state.lcu.lobby._available = false
