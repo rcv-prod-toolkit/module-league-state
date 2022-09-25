@@ -192,7 +192,7 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby.player = new Map<string, any>()
 
       if (event.data.gameConfig.customTeam100.length <= 0) {
-        state.lcu.lobby.player.forEach((v: any, k: string) => {
+        state.lcu.lobby.player?.forEach((v: any, k: string) => {
           if (v.team === 100) {
             state.lcu.lobby.player.delete(k)
           }
@@ -205,7 +205,7 @@ export class LCUDataReaderController extends Controller {
         )
       }
       if (event.data.gameConfig.customTeam200.length <= 0) {
-        state.lcu.lobby.player.forEach((v: any, k: string) => {
+        state.lcu.lobby.player?.forEach((v: any, k: string) => {
           if (v.team === 200) {
             state.lcu.lobby.player.delete(k)
           }
@@ -226,7 +226,7 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby._updated = new Date()
 
       if (event.data.gameConfig.customTeam100.length <= 0) {
-        state.lcu.lobby.player.forEach((v: any, k: string) => {
+        state.lcu.lobby.player?.forEach((v: any, k: string) => {
           if (v.team === 100) {
             state.lcu.lobby.player.delete(k)
           }
@@ -239,7 +239,7 @@ export class LCUDataReaderController extends Controller {
         )
       }
       if (event.data.gameConfig.customTeam200.length <= 0) {
-        state.lcu.lobby.player.forEach((v: any, k: string) => {
+        state.lcu.lobby.player?.forEach((v: any, k: string) => {
           if (v.team === 200) {
             state.lcu.lobby.player.delete(k)
           }
