@@ -59,26 +59,6 @@ export class LCUDataReaderController extends Controller {
     })
   }
 
-  async getPlayer(summonerName: string): Promise<any> {
-    try {
-      const replay = await this.pluginContext.LPTE.request({
-        meta: {
-          namespace: 'plugin-webapi',
-          type: 'fetch-league',
-          version: 1
-        },
-        summonerName
-      })
-
-      return {
-        elo: replay?.data,
-        server: replay?.server
-      }
-    } catch (e) {
-      return {}
-    }
-  }
-
   replayChampselect(): void {
     if (this.recording.length <= 0) return
 
@@ -160,12 +140,11 @@ export class LCUDataReaderController extends Controller {
         savedPlayer
       )
     } else {
-      const playerInfo = await this.getPlayer(player.summonerName)
-      const server = (playerInfo.server as string)?.replace(/\d/g, '')
+      const server = 'euw1'.replace(/\d/g, '')
 
       ;(state.lcu.lobby.player as Map<string, any>).set(player.summonerName, {
         name: player.summonerName,
-        elo: playerInfo.elo,
+        elo: player.elo,
         level: player.summonerLevel,
         icon: player.summonerIconId,
         team: player.teamId,
@@ -191,6 +170,8 @@ export class LCUDataReaderController extends Controller {
 
       state.lcu.lobby.player = new Map<string, any>()
 
+      this.pluginContext.log.warn(JSON.stringify(event.data, null, 2))
+
       if (event.data.gameConfig.customTeam100.length <= 0) {
         state.lcu.lobby.player?.forEach((v: any, k: string) => {
           if (v.team === 100) {
@@ -204,6 +185,7 @@ export class LCUDataReaderController extends Controller {
           }
         )
       }
+
       if (event.data.gameConfig.customTeam200.length <= 0) {
         state.lcu.lobby.player?.forEach((v: any, k: string) => {
           if (v.team === 200) {
@@ -216,6 +198,16 @@ export class LCUDataReaderController extends Controller {
             this.addOrUpdatePlayer(player, i)
           }
         )
+      }
+
+      if (event.data.gameConfig.customSpectators?.length > 0) {
+        event.data.gameConfig.customSpectators?.forEach((s: any) => {
+          state.lcu.lobby.player?.forEach((v: any, k: string) => {
+            if (v.summonerName === s.summonerName) {
+              state.lcu.lobby.player.delete(k)
+            }
+          })
+        })
       }
 
       this.pluginContext.log.info('Flow: lobby - active')
@@ -250,6 +242,16 @@ export class LCUDataReaderController extends Controller {
             this.addOrUpdatePlayer(player, i)
           }
         )
+      }
+
+      if (event.data.gameConfig.customSpectators?.length > 0) {
+        event.data.gameConfig.customSpectators?.forEach((s: any) => {
+          state.lcu.lobby.player?.forEach((v: any, k: string) => {
+            if (v.summonerName === s.summonerName) {
+              state.lcu.lobby.player.delete(k)
+            }
+          })
+        })
       }
     }
     if (event.meta.type === 'lcu-lobby-delete') {
