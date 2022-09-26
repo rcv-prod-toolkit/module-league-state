@@ -128,34 +128,21 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby.player = new Map<string, any>()
     }
 
-    if ((state.lcu.lobby.player as Map<string, any>).has(player.summonerName)) {
-      const savedPlayer = (state.lcu.lobby.player as Map<string, any>).get(
-        player.summonerName
-      )!
+    const server = 'euw1'.replace(/\d/g, '')
 
-      savedPlayer.team = player.teamId
-      savedPlayer.position = i
-      ;(state.lcu.lobby.player as Map<string, any>).set(
-        player.summonerName,
-        savedPlayer
-      )
-    } else {
-      const server = 'euw1'.replace(/\d/g, '')
-
-      ;(state.lcu.lobby.player as Map<string, any>).set(player.summonerName, {
-        name: player.summonerName,
-        elo: player.elo,
-        level: player.summonerLevel,
-        icon: player.summonerIconId,
-        team: player.teamId,
-        position: i,
-        opgg: server
-          ? `https://euw.op.gg/summoners/${server?.toLowerCase()}/${encodeURIComponent(
-              player.summonerName
-            )}`
-          : ''
-      })
-    }
+    ;(state.lcu.lobby.player as Map<string, any>).set(player.summonerName, {
+      name: player.summonerName,
+      elo: player.elo,
+      level: player.summonerLevel,
+      icon: player.summonerIconId,
+      team: player.teamId,
+      position: i,
+      opgg: server
+        ? `https://euw.op.gg/summoners/${server?.toLowerCase()}/${encodeURIComponent(
+            player.summonerName
+          )}`
+        : ''
+    })
 
     this.emitLobbyUpdate()
   }
