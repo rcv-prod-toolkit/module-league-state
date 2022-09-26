@@ -157,8 +157,6 @@ export class LCUDataReaderController extends Controller {
 
       state.lcu.lobby.player = new Map<string, any>()
 
-      this.pluginContext.log.warn(JSON.stringify(event.data, null, 2))
-
       if (event.data.gameConfig.customTeam100.length <= 0) {
         state.lcu.lobby.player?.forEach((v: any, k: string) => {
           if (v.team === 100) {
@@ -185,16 +183,6 @@ export class LCUDataReaderController extends Controller {
             this.addOrUpdatePlayer(player, i)
           }
         )
-      }
-
-      if (event.data.gameConfig.customSpectators?.length > 0) {
-        event.data.gameConfig.customSpectators?.forEach((s: any) => {
-          state.lcu.lobby.player?.forEach((v: any, k: string) => {
-            if (v.summonerName === s.summonerName) {
-              state.lcu.lobby.player.delete(k)
-            }
-          })
-        })
       }
 
       this.pluginContext.log.info('Flow: lobby - active')
@@ -229,16 +217,6 @@ export class LCUDataReaderController extends Controller {
             this.addOrUpdatePlayer(player, i)
           }
         )
-      }
-
-      if (event.data.gameConfig.customSpectators?.length > 0) {
-        event.data.gameConfig.customSpectators?.forEach((s: any) => {
-          state.lcu.lobby.player?.forEach((v: any, k: string) => {
-            if (v.summonerName === s.summonerName) {
-              state.lcu.lobby.player.delete(k)
-            }
-          })
-        })
       }
     }
     if (event.meta.type === 'lcu-lobby-delete') {
