@@ -3,6 +3,7 @@ import { RequestController } from './controller/RequestController'
 import { SetGameController } from './controller/SetGameController'
 import { UnsetGameController } from './controller/UnsetGameController'
 import { LCUDataReaderController } from './controller/LCUDataReaderController'
+import { state } from './LeagueState'
 
 export let leagueStatic: any
 
@@ -105,6 +106,56 @@ module.exports = async (ctx: PluginContext) => {
   })
   ctx.LPTE.on('lcu', 'lcu-end-of-game-delete', (e) => {
     lcuDataReaderController.handle(e)
+  })
+
+  ctx.LPTE.on(namespace, 'swap-player', (e) => {    
+    const playerOrder: Map<string, [100 | 200, 0 | 1 | 2 | 3 | 4, 0 | 1 | 2 | 3 | 4]> = state.lcu.lobby.playerOrder
+
+    playerOrder.forEach((po, i) => {
+      if (po[2] === e.currentpos) {
+        playerOrder.get(i)![2] = e.droppedpos
+        state.lcu.lobby.members = state.lcu.lobby.members.map((p: any) => {
+          if (p.summonerName === i) {
+            return {...p, sortedPosition: e.droppedpos}
+          } else {
+            return p
+          }
+        })
+        return
+      }
+
+      if (e.currentpos < e.droppedpos) {
+        if (po[2] <= e.droppedpos) {
+          playerOrder.get(i)![2] -= 1
+          state.lcu.lobby.members = state.lcu.lobby.members.map((p: any) => {
+            if (p.summonerName === i) {
+              return {...p, sortedPosition: p.sortedPosition - 1}
+            } else {
+              return p
+            }
+          })
+          return
+        }
+      } else if (e.currentpos > e.droppedpos) {
+        if (po[2] >= e.droppedpos) {
+          playerOrder.get(i)![2] += 1
+          state.lcu.lobby.members = state.lcu.lobby.members.map((p: any) => {
+            if (p.summonerName === i) {
+              return {...p, sortedPosition: p.sortedPosition + 1}
+            } else {
+              return p
+            }
+          })
+          return
+        } 
+      }
+    })
+
+    state.lcu.lobby.playerOrder = playerOrder
+    state.lcu.lobby.members.sort((a: any, b: any) => {
+      return a.sortedPosition < b.sortedPosition ? -1 :
+        a.sortedPosition > b.sortedPosition ? 1 : 0
+    })
   })
 
   // Emit event that we're ready to operate

@@ -4,7 +4,6 @@ import {
   ActionType,
   Cell,
   Session,
-  Summoner,
   Team,
   Timer,
   Pick,
@@ -26,6 +25,12 @@ const convertTeam = ({
   newTeam.picks = team.map((cell: Cell) => {
     const currentAction = actions.find((action) => !action.completed)
 
+    const summonerSearch = gameState.lcu.lobby.members?.find(
+      (member: any) => member.summonerId === cell.summonerId
+    )
+
+    cell.cellId = summonerSearch ? summonerSearch.sortedPosition : cell.cellId
+
     const pick = new Pick(cell.cellId)
 
     pick.spell1 = {
@@ -42,12 +47,12 @@ const convertTeam = ({
         : ''
     }
 
-    const championSearch = leagueStatic.champions.filter(
+    const championSearch = leagueStatic.champions.find(
       (c: any) => c.key === cell.championId.toString()
     )
     let champion: any
-    if (championSearch.length > 0) {
-      champion = championSearch[0]
+    if (championSearch !== undefined) {
+      champion = championSearch
     }
     pick.champion = {
       id: cell.championId,
@@ -67,11 +72,8 @@ const convertTeam = ({
         : ''
     }
 
-    const summonerSearch = gameState.lcu.lobby.members.filter(
-      (member: any) => member.summonerId === cell.summonerId
-    )
-    if (summonerSearch.length > 0) {
-      pick.displayName = summonerSearch[0].summonerName
+    if (summonerSearch !== undefined) {
+      pick.displayName = summonerSearch.summonerName
     }
 
     if (
@@ -85,6 +87,9 @@ const convertTeam = ({
     }
 
     return pick
+  }).sort((a, b) => {
+    return a.id < b.id ? -1 :
+      a.id > b.id ? 1 : 0
   })
 
   const isInThisTeam = (cellId: number) =>

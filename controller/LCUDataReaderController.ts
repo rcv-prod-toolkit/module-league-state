@@ -55,7 +55,7 @@ export class LCUDataReaderController extends Controller {
         type: 'lobby-update',
         version: 1
       },
-      data: [...(state.lcu.lobby.player as Map<string, any>).values()]
+      data: state.lcu.lobby
     })
   }
 
@@ -123,28 +123,39 @@ export class LCUDataReaderController extends Controller {
     this.refreshTask = undefined
   }
 
-  async addOrUpdatePlayer(player: any, i: number): Promise<void> {
-    if (state.lcu.lobby.player === undefined) {
-      state.lcu.lobby.player = new Map<string, any>()
+  addOrUpdatePlayer(player: any): any {
+    const team = player.teamId === 100 ? state.lcu.lobby.gameConfig.customTeam100 : state.lcu.lobby.gameConfig.customTeam200
+    const i = team.findIndex((p :any) => p.summonerId === player.summonerId)
+
+    if (state.lcu.lobby.playerOrder.has(player.summonerName)) {
+      if (i !== state.lcu.lobby.playerOrder.get(player.summonerName)[2]) {
+        state.lcu.lobby.playerOrder.get(player.summonerName)[1] = i
+        state.lcu.lobby.playerOrder.get(player.summonerName)[2] = i
+
+        return {
+          ...player,
+          lcuPosition: i,
+          sortedPosition: i,
+          elo: team[i].elo
+        }
+      } else {
+        return {
+          ...player,
+          lcuPosition: i,
+          sortedPosition: state.lcu.lobby.playerOrder.get(player.summonerName)[2],
+          elo: team[i].elo
+        }
+      }
+    } else {
+      state.lcu.lobby.playerOrder.set(player.summonerName, [player.teamId, i, i])
+
+      return {
+        ...player,
+        lcuPosition: i,
+        sortedPosition: i,
+        elo: team[i].elo
+      }
     }
-
-    const server = 'euw1'.replace(/\d/g, '')
-
-    ;(state.lcu.lobby.player as Map<string, any>).set(player.summonerName, {
-      name: player.summonerName,
-      elo: player.elo,
-      level: player.summonerLevel,
-      icon: player.summonerIconId,
-      team: player.teamId,
-      position: i,
-      opgg: server
-        ? `https://euw.op.gg/summoners/${server?.toLowerCase()}/${encodeURIComponent(
-            player.summonerName
-          )}`
-        : ''
-    })
-
-    this.emitLobbyUpdate()
   }
 
   async handle(event: LPTEvent): Promise<void> {
@@ -155,74 +166,43 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby._created = new Date()
       state.lcu.lobby._updated = new Date()
 
-      state.lcu.lobby.player = new Map<string, any>()
+      state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, 0 | 1 | 2 | 3 | 4, 0 | 1 | 2 | 3 | 4]>
 
-      if (event.data.gameConfig.customTeam100.length <= 0) {
-        state.lcu.lobby.player?.forEach((v: any, k: string) => {
-          if (v.team === 100) {
-            state.lcu.lobby.player.delete(k)
-          }
-        })
-      } else {
-        ;(event.data.gameConfig.customTeam100 as Array<any>).forEach(
-          (player: any, i) => {
-            this.addOrUpdatePlayer(player, i)
-          }
-        )
-      }
-
-      if (event.data.gameConfig.customTeam200.length <= 0) {
-        state.lcu.lobby.player?.forEach((v: any, k: string) => {
-          if (v.team === 200) {
-            state.lcu.lobby.player.delete(k)
-          }
-        })
-      } else {
-        ;(event.data.gameConfig.customTeam200 as Array<any>).forEach(
-          (player: any, i) => {
-            this.addOrUpdatePlayer(player, i)
-          }
-        )
-      }
+      state.lcu.lobby.members = (event.data.members as Array<any>).map(
+        (player: any) => {
+          return this.addOrUpdatePlayer(player)
+      }).sort((a, b) => {
+        return a.sortedPosition < b.sortedPosition ? -1 :
+          a.sortedPosition > b.sortedPosition ? 1 : 0
+      })
 
       this.pluginContext.log.info('Flow: lobby - active')
+      this.emitLobbyUpdate()
     }
     if (event.meta.type === 'lcu-lobby-update') {
       state.lcu.lobby = { ...state.lcu.lobby, ...event.data }
       state.lcu.lobby._available = true
       state.lcu.lobby._updated = new Date()
 
-      if (event.data.gameConfig.customTeam100.length <= 0) {
-        state.lcu.lobby.player?.forEach((v: any, k: string) => {
-          if (v.team === 100) {
-            state.lcu.lobby.player.delete(k)
-          }
-        })
-      } else {
-        ;(event.data.gameConfig.customTeam100 as Array<any>).forEach(
-          (player: any, i) => {
-            this.addOrUpdatePlayer(player, i)
-          }
-        )
+      if (state.lcu.lobby.playerOrder === undefined) {
+        state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, 0 | 1 | 2 | 3 | 4, 0 | 1 | 2 | 3 | 4]>
       }
-      if (event.data.gameConfig.customTeam200.length <= 0) {
-        state.lcu.lobby.player?.forEach((v: any, k: string) => {
-          if (v.team === 200) {
-            state.lcu.lobby.player.delete(k)
-          }
-        })
-      } else {
-        ;(event.data.gameConfig.customTeam200 as Array<any>).forEach(
-          (player: any, i) => {
-            this.addOrUpdatePlayer(player, i)
-          }
-        )
-      }
+
+      state.lcu.lobby.members = (event.data.members as any[]).map(
+        (player: any, i) => {
+          return this.addOrUpdatePlayer(player)
+        }
+      ).sort((a, b) => {
+        return a.sortedPosition < b.sortedPosition ? -1 :
+          a.sortedPosition > b.sortedPosition ? 1 : 0
+      })
+
+      this.emitLobbyUpdate()
     }
     if (event.meta.type === 'lcu-lobby-delete') {
       state.lcu.lobby._available = false
       state.lcu.lobby._deleted = new Date()
-      state.lcu.lobby.player = new Map<string, any>()
+      state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, 0 | 1 | 2 | 3 | 4, 0 | 1 | 2 | 3 | 4]>
 
       this.pluginContext.log.info('Flow: lobby - inactive')
       this.emitLobbyUpdate()

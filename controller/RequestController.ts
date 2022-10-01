@@ -16,12 +16,7 @@ export class RequestController extends Controller {
         ...state,
         lcu: {
           ...state.lcu,
-          lobby: {
-            ...state.lcu.lobby,
-            player: state.lcu.lobby.player
-              ? [...(state.lcu.lobby.player as Map<string, any>).values()]
-              : []
-          },
+          lobby: state.lcu.lobby,
           champselect: {
             ...state.lcu.champselect,
             order:
