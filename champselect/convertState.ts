@@ -29,7 +29,7 @@ const convertTeam = ({
       (member: any) => member.summonerId === cell.summonerId
     )
 
-    cell.cellId = summonerSearch ? summonerSearch.sortedPosition : cell.cellId
+    /* cell.cellId = summonerSearch ? summonerSearch.sortedPosition : cell.cellId */
 
     const pick = new Pick(cell.cellId)
 
