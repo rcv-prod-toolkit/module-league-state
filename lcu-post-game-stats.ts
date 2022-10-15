@@ -97,7 +97,7 @@ export interface TeamsEntity {
   memberStatusString: string;
   name: string;
   players?: (PlayersEntity)[] | null;
-  stats: Stats1;
+  stats: Stats;
   tag: string;
   teamId: number;
 }
