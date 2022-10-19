@@ -3,6 +3,7 @@ import { Controller } from './Controller'
 import { state } from '../LeagueState'
 import { ConvertedState, convertState } from '../champselect/convertState'
 import { leagueStatic } from '../plugin'
+import { EOG } from '../types/lcu-post-game-stats'
 
 export enum PickBanPhase {
   GAME_STARTING = 'GAME_STARTING',
@@ -335,7 +336,8 @@ export class LCUDataReaderController extends Controller {
           type: 'set-game',
           version: 1
         },
-        by: 'gameId'
+        by: 'gameId',
+        gameId: (event.data as EOG).gameId
       })
     }
     if (event.meta.type === 'lcu-end-of-game-delete') {

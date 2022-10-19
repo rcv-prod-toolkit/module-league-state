@@ -1,4 +1,4 @@
-export interface Weather {
+export interface EOG {
   basePoints: number;
   battleBoostIpEarned: number;
   boostIpEarned: number;

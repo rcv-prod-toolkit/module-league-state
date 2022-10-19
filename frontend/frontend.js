@@ -1,26 +1,33 @@
 const setStatus = (componentName, component) => {
   // Status
   if (component._available) {
-    document.querySelector(`#${componentName}-status`).innerHTML = '<span class="green">Live</span>'
-    document.querySelector(`#${componentName}-available`).innerHTML = new Date(component._created).toLocaleString()
+    document.querySelector(`#${componentName}-status`).innerHTML =
+      '<span class="green">Live</span>'
+    document.querySelector(`#${componentName}-available`).innerHTML = new Date(
+      component._created
+    ).toLocaleString()
 
-    document.querySelector(`#${componentName}-update`).innerHTML = new Date(component._updated).toLocaleString()
+    document.querySelector(`#${componentName}-update`).innerHTML = new Date(
+      component._updated
+    ).toLocaleString()
   } else {
-    document.querySelector(`#${componentName}-status`).innerHTML = '<span class="orange">Not Live</span>'
+    document.querySelector(`#${componentName}-status`).innerHTML =
+      '<span class="orange">Not Live</span>'
     if (component._deleted) {
-      document.querySelector(`#${componentName}-unavailable`).innerHTML = new Date(component._deleted).toLocaleString()
+      document.querySelector(`#${componentName}-unavailable`).innerHTML =
+        new Date(component._deleted).toLocaleString()
     }
   }
 }
 
 const updateUi = (state) => {
   // Flow
-  setStatus("lcu-lobby", state.lcu.lobby)
-  setStatus("lcu-champ-select", state.lcu.champselect)
-  setStatus("lcu-end-of-game", state.lcu.eog)
-  setStatus("web-live", state.web.live)
-  setStatus("web-match", state.web.match)
-  setStatus("web-timeline", state.web.timeline)
+  setStatus('lcu-lobby', state.lcu.lobby)
+  setStatus('lcu-champ-select', state.lcu.champselect)
+  setStatus('lcu-end-of-game', state.lcu.eog)
+  setStatus('web-live', state.web.live)
+  setStatus('web-match', state.web.match)
+  setStatus('web-timeline', state.web.timeline)
 
   if (state?.web?.live?.participants) {
     ParticipantTable(state.web.live.participants)
@@ -31,15 +38,15 @@ const updateUi = (state) => {
 }
 
 const formLoadByName = async () => {
-  const name = document.querySelector("#name").value
+  const name = document.querySelector('#name').value
 
   await LPTE.request({
     meta: {
-      namespace: "module-league-state",
-      type: "set-game",
+      namespace: 'module-league-state',
+      type: 'set-game',
       version: 1
     },
-    by: "summonerName",
+    by: 'summonerName',
     summonerName: name
   })
 
@@ -47,15 +54,15 @@ const formLoadByName = async () => {
 }
 
 const formLoadByGameId = async () => {
-  const gameId = document.querySelector("#gameid").value
+  const gameId = document.querySelector('#gameid').value
 
   await LPTE.request({
     meta: {
-      namespace: "module-league-state",
-      type: "set-game",
+      namespace: 'module-league-state',
+      type: 'set-game',
       version: 1
     },
-    by: "gameId",
+    by: 'gameId',
     gameId
   })
 
@@ -65,11 +72,11 @@ const formLoadByGameId = async () => {
 const formLoadMatchByLive = async () => {
   await LPTE.request({
     meta: {
-      namespace: "module-league-state",
-      type: "set-game",
+      namespace: 'module-league-state',
+      type: 'set-game',
       version: 1
     },
-    by: "gameId"
+    by: 'gameId'
   })
 
   await updateState()
@@ -78,8 +85,8 @@ const formLoadMatchByLive = async () => {
 const formUnsetGame = async () => {
   await LPTE.request({
     meta: {
-      namespace: "module-league-state",
-      type: "unset-game",
+      namespace: 'module-league-state',
+      type: 'unset-game',
       version: 1
     }
   })
@@ -90,8 +97,8 @@ const formUnsetGame = async () => {
 const updateState = async () => {
   const response = await LPTE.request({
     meta: {
-      namespace: "module-league-state",
-      type: "request",
+      namespace: 'module-league-state',
+      type: 'request',
       version: 1
     }
   })
@@ -99,25 +106,26 @@ const updateState = async () => {
   updateUi(response.state)
 }
 
-const getTeam = (teamId) => (teamId === 100 ? "blue" : "red")
+const getTeam = (teamId) => (teamId === 100 ? 'blue' : 'red')
 
 const ParticipantTable = ({ participants }) => {
-  const tbl = document.createElement("table")
-  tbl.classList.add("table")
+  const tbl = document.createElement('table')
+  tbl.classList.add('table')
 
-  const tblH = document.createElement("thead")
-  const tblHRow = tblH.insertRow()
+  const tblH = document.createElement('thead')
+  const tblHRow = tblH
+    .insertRow()
 
-  ["Name", "Team", "Champion", "Spell 1", "Spell 2"].forEach((element) => {
-    const th = tblHRow.insertCell()
-    th.innerText = element
-  })
+    [('Name', 'Team', 'Champion', 'Spell 1', 'Spell 2')].forEach((element) => {
+      const th = tblHRow.insertCell()
+      th.innerText = element
+    })
 
   tbl.appendChild(tblH)
 
-  const tblB = document.createElement("tbody")
+  const tblB = document.createElement('tbody')
 
-  participants.forEach(participant => {
+  participants.forEach((participant) => {
     const tr = tblB.insertRow()
     tr.insertCell().innerText = participant.summonerName
     tr.insertCell().innerText = getTeam(participant.teamId)
@@ -128,27 +136,28 @@ const ParticipantTable = ({ participants }) => {
 
   tbl.appendChild(tblB)
 
-  document.querySelector("#participant-table").innerHTML = ""
-  document.querySelector("#participant-table").appendChild(tbl)
+  document.querySelector('#participant-table').innerHTML = ''
+  document.querySelector('#participant-table').appendChild(tbl)
 }
 
 const BanTable = ({ bans }) => {
-  const tbl = document.createElement("table")
-  tbl.classList.add("table")
+  const tbl = document.createElement('table')
+  tbl.classList.add('table')
 
-  const tblH = document.createElement("thead")
-  const tblHRow = tblH.insertRow()
+  const tblH = document.createElement('thead')
+  const tblHRow = tblH
+    .insertRow()
 
-  ["Turn", "Team", "Champion"].forEach((element) => {
-    const th = tblHRow.insertCell()
-    th.innerText = element
-  })
+    [('Turn', 'Team', 'Champion')].forEach((element) => {
+      const th = tblHRow.insertCell()
+      th.innerText = element
+    })
 
   tbl.appendChild(tblH)
 
-  const tblB = document.createElement("tbody")
+  const tblB = document.createElement('tbody')
 
-  bans.forEach(ban => {
+  bans.forEach((ban) => {
     const tr = tblB.insertRow()
     tr.insertCell().innerText = ban.pickTurn
     tr.insertCell().innerText = getTeam(ban.teamId)
@@ -157,8 +166,8 @@ const BanTable = ({ bans }) => {
 
   tbl.appendChild(tblB)
 
-  document.querySelector("#ban-table").innerHTML = ""
-  document.querySelector("#ban-table").appendChild(tbl)
+  document.querySelector('#ban-table').innerHTML = ''
+  document.querySelector('#ban-table').appendChild(tbl)
 }
 
 const start = async () => {

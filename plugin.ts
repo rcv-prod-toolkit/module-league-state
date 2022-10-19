@@ -43,6 +43,10 @@ module.exports = async (ctx: PluginContext) => {
     unsetGameController.handle(e)
   })
 
+  ctx.LPTE.on(namespace, 'save-live-game-stats', (e) => {
+    state.live.objectives = e.objectives
+  })
+
   ctx.LPTE.on(namespace, 'record-champselect', (e) => {
     lcuDataReaderController.recordChampselect = e.recordingEnabled
   })

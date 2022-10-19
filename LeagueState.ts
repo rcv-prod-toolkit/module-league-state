@@ -27,9 +27,18 @@ export class LeagueStateLCU {
   }
 }
 
+export class LeagueStateLive {
+  _available = false
+  objectives = {
+    100: [],
+    200: [] 
+  }
+}
+
 export class LeagueState {
   web: LeagueStateWeb = new LeagueStateWeb()
   lcu: LeagueStateLCU = new LeagueStateLCU()
+  live: LeagueStateLive = new LeagueStateLive()
 }
 
 export const state = new LeagueState()
