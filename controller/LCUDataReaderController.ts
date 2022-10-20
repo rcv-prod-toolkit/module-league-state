@@ -328,6 +328,21 @@ export class LCUDataReaderController extends Controller {
       state.lcu.eog = event.data
       state.lcu.eog._available = true
 
+      // Also make sure post game is loaded
+      this.pluginContext.LPTE.emit({
+        meta: {
+          namespace: this.pluginContext.plugin.module.getName(),
+          type: 'set-game',
+          version: 1
+        },
+        by: 'gameId',
+        gameId: (event.data as EOG).gameId
+      })
+    }
+    if (event.meta.type === 'lcu-end-of-game-update') {
+      state.lcu.eog = event.data
+      state.lcu.eog._available = true
+
       this.pluginContext.log.info('Flow: end of game - active')
       // Also make sure post game is loaded
       this.pluginContext.LPTE.emit({

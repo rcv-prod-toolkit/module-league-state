@@ -93,16 +93,12 @@ export class SetGameController extends Controller {
         this.pluginContext.log.info(
           `Loading match failed for gameId=${event.gameId}`
         )
-        this.pluginContext.LPTE.emit({
-          meta: replyMeta
-        })
-        return
       }
 
-      state.web.match = gameResponse.match
-      state.web.timeline = gameResponse.timeline
+      state.web.match = gameResponse?.match
+      state.web.timeline = gameResponse?.timeline
 
-      if (!gameResponse.match) {
+      if (!gameResponse || gameResponse.failed) {
         const lcuEog = state.lcu.eog
 
         const newWebState = {
