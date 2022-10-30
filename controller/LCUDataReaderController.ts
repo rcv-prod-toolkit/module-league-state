@@ -127,6 +127,7 @@ export class LCUDataReaderController extends Controller {
   addOrUpdatePlayer(player: any): any {
     const team = player.teamId === 100 ? state.lcu.lobby.gameConfig.customTeam100 : state.lcu.lobby.gameConfig.customTeam200
     const i = team.findIndex((p :any) => p.summonerId === player.summonerId)
+    const lcuPosition = player.teamId === 100 ? i : i + state.lcu.lobby.gameConfig.customTeam100.length
 
     if (state.lcu.lobby.playerOrder.has(player.summonerName)) {
       if (i !== state.lcu.lobby.playerOrder.get(player.summonerName)[2]) {
@@ -135,25 +136,25 @@ export class LCUDataReaderController extends Controller {
 
         return {
           ...player,
-          lcuPosition: i,
+          lcuPosition,
           sortedPosition: i,
           elo: team[i].elo
         }
       } else {
         return {
           ...player,
-          lcuPosition: i,
+          lcuPosition,
           sortedPosition: state.lcu.lobby.playerOrder.get(player.summonerName)[2],
           elo: team[i].elo
         }
       }
     } else {
-      state.lcu.lobby.playerOrder.set(player.summonerName, [player.teamId, i, i])
+      state.lcu.lobby.playerOrder.set(player.summonerName, [player.teamId, lcuPosition, lcuPosition])
 
       return {
         ...player,
-        lcuPosition: i,
-        sortedPosition: i,
+        lcuPosition,
+        sortedPosition: lcuPosition,
         elo: team[i].elo
       }
     }
@@ -167,7 +168,7 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby._created = new Date()
       state.lcu.lobby._updated = new Date()
 
-      state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, 0 | 1 | 2 | 3 | 4, 0 | 1 | 2 | 3 | 4]>
+      state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, number, number]>
 
       state.lcu.lobby.members = (event.data.members as Array<any>).map(
         (player: any) => {
@@ -186,7 +187,7 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby._updated = new Date()
 
       if (state.lcu.lobby.playerOrder === undefined) {
-        state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, 0 | 1 | 2 | 3 | 4, 0 | 1 | 2 | 3 | 4]>
+        state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, number, number]>
       }
 
       state.lcu.lobby.members = (event.data.members as any[]).map(
@@ -203,7 +204,7 @@ export class LCUDataReaderController extends Controller {
     if (event.meta.type === 'lcu-lobby-delete') {
       state.lcu.lobby._available = false
       state.lcu.lobby._deleted = new Date()
-      state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, 0 | 1 | 2 | 3 | 4, 0 | 1 | 2 | 3 | 4]>
+      state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, number, number]>
 
       this.pluginContext.log.info('Flow: lobby - inactive')
       this.emitLobbyUpdate()
@@ -266,9 +267,6 @@ export class LCUDataReaderController extends Controller {
           by: 'summonerName',
           summonerName: state.lcu.lobby.members[0].summonerName
         })
-      } else {
-        // this.pluginContext.log.info('Flow: champselect - reset summoners to now show')
-        // state.lcu.champselect.showSummoners = false;
       }
 
       // Only trigger if we're now in finalization, save order
