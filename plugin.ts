@@ -113,7 +113,7 @@ module.exports = async (ctx: PluginContext) => {
   })
 
   ctx.LPTE.on(namespace, 'swap-player', (e) => {    
-    const playerOrder: Map<string, [100 | 200, 0 | 1 | 2 | 3 | 4, 0 | 1 | 2 | 3 | 4]> = state.lcu.lobby.playerOrder
+    const playerOrder: Map<string, [100 | 200, number, number]> = state.lcu.lobby.playerOrder
 
     playerOrder.forEach((po, i) => {
       if (po[2] === e.currentpos) {
