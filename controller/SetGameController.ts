@@ -90,16 +90,21 @@ export class SetGameController extends Controller {
         matchId: event.gameId
       })
 
-      if (!gameResponse || gameResponse.failed) {
-        this.pluginContext.log.info(
-          `Loading match failed for gameId=${event.gameId}`
-        )
-      }
-
       state.web.match = gameResponse?.match
       state.web.timeline = gameResponse?.timeline
 
       if (!gameResponse || gameResponse.failed) {
+        this.pluginContext.log.info(
+          `Loading match failed for gameId=${event.gameId}`
+        )
+
+        if (state.lcu?.eog === undefined || !state.lcu.eog._available) {
+          this.pluginContext.LPTE.emit({
+            meta: replyMeta
+          })
+          return
+        }
+
         const lcuEog = state.lcu.eog
         const ps: any[] = lcuEog.teams?.map((t: any) => {
           return t.players?.map((p: any, i: number) => {
