@@ -13,12 +13,12 @@ export enum PickBanPhase {
 export class LCUDataReaderController extends Controller {
   leagueStatic: any
   refreshTask?: NodeJS.Timeout
-  recordChampselect = true
   replayIsPlaying = false
+  replayPlayer: NodeJS.Timeout[] = []
 
   recording: ConvertedState[] = []
 
-  constructor(pluginContext: PluginContext) {
+  constructor(pluginContext: PluginContext, public recordChampselect: boolean) {
     super(pluginContext)
 
     this.emitChampSelectUpdate = this.emitChampSelectUpdate.bind(this)
@@ -38,12 +38,12 @@ export class LCUDataReaderController extends Controller {
       order:
         state.lcu.champselect.order !== undefined
           ? {
-              ...convertState(
-                state,
-                state.lcu.champselect.order as any,
-                leagueStatic
-              )
-            }
+            ...convertState(
+              state,
+              state.lcu.champselect.order as any,
+              leagueStatic
+            )
+          }
           : undefined,
       isActive: state.lcu.champselect._available
     })
@@ -67,9 +67,7 @@ export class LCUDataReaderController extends Controller {
     for (let i = 0; i < this.recording.length; i++) {
       const event = this.recording[i]
 
-      setTimeout(() => {
-        if (!this.replayIsPlaying) return
-
+      this.replayPlayer.push(setTimeout(() => {
         this.pluginContext.LPTE.emit({
           meta: {
             namespace: this.pluginContext.plugin.module.getName(),
@@ -114,7 +112,7 @@ export class LCUDataReaderController extends Controller {
             this.refreshTask = undefined
           }
         }
-      }, event.timeAfterStart)
+      }, event.timeAfterStart))
     }
   }
 
@@ -122,11 +120,15 @@ export class LCUDataReaderController extends Controller {
     this.replayIsPlaying = false
     if (this.refreshTask) clearInterval(this.refreshTask)
     this.refreshTask = undefined
+
+    this.replayPlayer.forEach(r => {
+      clearTimeout(r)
+    })
   }
 
   addOrUpdatePlayer(player: any): any {
     const team = player.teamId === 100 ? state.lcu.lobby.gameConfig.customTeam100 : state.lcu.lobby.gameConfig.customTeam200
-    const i = team.findIndex((p :any) => p.summonerId === player.summonerId)
+    const i = team.findIndex((p: any) => p.summonerId === player.summonerId)
     const lcuPosition = player.teamId === 100 ? i : i + state.lcu.lobby.gameConfig.customTeam100.length
 
     if (state.lcu.lobby.playerOrder.has(player.summonerName)) {
@@ -173,10 +175,10 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby.members = (event.data.members as Array<any>).map(
         (player: any) => {
           return this.addOrUpdatePlayer(player)
-      }).sort((a, b) => {
-        return a.sortedPosition < b.sortedPosition ? -1 :
-          a.sortedPosition > b.sortedPosition ? 1 : 0
-      })
+        }).sort((a, b) => {
+          return a.sortedPosition < b.sortedPosition ? -1 :
+            a.sortedPosition > b.sortedPosition ? 1 : 0
+        })
 
       this.pluginContext.log.info('Flow: lobby - active')
       this.emitLobbyUpdate()
