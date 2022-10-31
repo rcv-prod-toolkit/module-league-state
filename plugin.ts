@@ -25,6 +25,20 @@ module.exports = async (ctx: PluginContext) => {
     ]
   })
 
+  const configRes = await ctx.LPTE.request({
+    meta: {
+      type: 'request',
+      namespace: 'plugin-config',
+      version: 1
+    }
+  })
+  if (configRes === undefined) {
+    ctx.log.warn('config could not be loaded')
+  }
+  let config = Object.assign({
+    recordChampselect: true
+  }, configRes?.config)
+
   const requestController = new RequestController(ctx)
   const setGameController = new SetGameController(ctx)
   const unsetGameController = new UnsetGameController(ctx)
@@ -48,6 +62,18 @@ module.exports = async (ctx: PluginContext) => {
   })
 
   ctx.LPTE.on(namespace, 'record-champselect', (e) => {
+    config.recordChampselect = e.recordingEnabled
+    ctx.LPTE.emit({
+      meta: {
+        type: 'set',
+        namespace: 'plugin-config',
+        version: 1
+      },
+      config: {
+        recordChampselect: e.recordingEnabled
+      }
+    })
+
     lcuDataReaderController.recordChampselect = e.recordingEnabled
   })
   ctx.LPTE.on(namespace, 'reload-recording', (e) => {
@@ -64,7 +90,7 @@ module.exports = async (ctx: PluginContext) => {
     })
   })
   ctx.LPTE.on(namespace, 'replay-champselect', (e) => {
-    if (e.play) {
+    if (e.play && !lcuDataReaderController.replayIsPlaying) {
       lcuDataReaderController.replayChampselect()
     } else {
       lcuDataReaderController.stopReplay()
@@ -174,6 +200,6 @@ module.exports = async (ctx: PluginContext) => {
 
   ctx.LPTE.on('module-league-static', 'static-loaded', async (e) => {
     leagueStatic = e.constants
-    lcuDataReaderController = new LCUDataReaderController(ctx)
+    lcuDataReaderController = new LCUDataReaderController(ctx, config.recordChampselect)
   })
 }
