@@ -44,7 +44,7 @@ module.exports = async (ctx: PluginContext) => {
   })
 
   ctx.LPTE.on(namespace, 'save-live-game-stats', (e) => {
-    state.live.objectives = e.objectives
+    state.live = e.gameState
   })
 
   ctx.LPTE.on(namespace, 'record-champselect', (e) => {
