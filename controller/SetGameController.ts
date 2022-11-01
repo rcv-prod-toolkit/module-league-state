@@ -235,7 +235,7 @@ export class SetGameController extends Controller {
               return {
                 teamId: t.teamId,
                 win: t.isWinningTeam,
-                bans: [],
+                bans: t.teamId === 100 ? state.lcu.champselect.bans?.myTeamBans || [] : state.lcu.champselect.bans?.theirTeamBans || [],
                 objectives: {
                   inhibitor: {
                     first: false,
