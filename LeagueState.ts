@@ -27,8 +27,10 @@ export class LeagueStateLCU {
   }
 }
 
-export class LeagueStateLive {
+export class LeagueStateLive implements LeagueStateDataStructure {
   _available = false
+  _created: Date | undefined
+  _updated: Date | undefined
   objectives = {
     100: [],
     200: [] 

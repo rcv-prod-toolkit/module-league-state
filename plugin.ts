@@ -59,6 +59,9 @@ module.exports = async (ctx: PluginContext) => {
 
   ctx.LPTE.on(namespace, 'save-live-game-stats', (e) => {
     state.live = e.gameState
+    state.live._available = true
+    state.live._created = new Date()
+    state.live._updated = new Date()
   })
 
   ctx.LPTE.on(namespace, 'record-champselect', (e) => {
@@ -136,6 +139,13 @@ module.exports = async (ctx: PluginContext) => {
   })
   ctx.LPTE.on('lcu', 'lcu-end-of-game-delete', (e) => {
     lcuDataReaderController.handle(e)
+  })
+
+
+  ctx.LPTE.on(namespace, 'change-player-nick', (e) => {
+    const index = (state.lcu.lobby.members as any[]).findIndex(p => p.summonerName = e.summonerName)
+    if (index === -1) return
+    state.lcu.lobby.members[index].nickname = e.nickname
   })
 
   ctx.LPTE.on(namespace, 'swap-player', (e) => {    
