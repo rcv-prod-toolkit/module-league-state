@@ -138,6 +138,7 @@ export class LCUDataReaderController extends Controller {
         state.lcu.lobby.playerOrder.get(player.summonerName)[2] = i
 
         return {
+          nickname: player.summonerName,
           ...player,
           lcuPosition,
           sortedPosition: i,
@@ -145,6 +146,7 @@ export class LCUDataReaderController extends Controller {
         }
       } else {
         return {
+          nickname: player.summonerName,
           ...player,
           lcuPosition,
           sortedPosition: state.lcu.lobby.playerOrder.get(player.summonerName)[2],
@@ -155,8 +157,8 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby.playerOrder.set(player.summonerName, [player.teamId, lcuPosition, lcuPosition])
 
       return {
-        ...player,
         nickname: player.summonerName,
+        ...player,
         lcuPosition,
         sortedPosition: lcuPosition,
         elo: team[i].elo
