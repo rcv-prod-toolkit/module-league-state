@@ -93,8 +93,10 @@ export class SetGameController extends Controller {
       state.web.match = gameResponse?.match
       state.web.timeline = gameResponse?.timeline
 
+      this.pluginContext.log.warn(JSON.stringify(gameResponse))
+
       if (!gameResponse || gameResponse.failed) {
-        this.pluginContext.log.info(
+        this.pluginContext.log.error(
           `Loading match failed for gameId=${event.gameId}`
         )
 
@@ -270,12 +272,24 @@ export class SetGameController extends Controller {
         state.web.match = newWebState as any
       }
 
-      state.web.match._available = true
-      state.web.match._created = new Date()
-      state.web.match._updated = new Date()
-      state.web.timeline._available = true
-      state.web.timeline._created = new Date()
-      state.web.timeline._updated = new Date()
+      if (state.web.match !== undefined) {
+        state.web.match._available = true
+        state.web.match._created = new Date()
+        state.web.match._updated = new Date()
+      } else {
+        state.web.match = {
+          _available: false
+        }
+      }
+      if (state.web.timeline !== undefined) {
+        state.web.timeline._available = true
+        state.web.timeline._created = new Date()
+        state.web.timeline._updated = new Date()
+      } else {
+        state.web.timeline = {
+          _available: false
+        }
+      }
 
       this.pluginContext.LPTE.emit({
         meta: {
