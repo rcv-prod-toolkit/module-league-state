@@ -278,7 +278,7 @@ export class LCUDataReaderController extends Controller {
             version: 1
           },
           by: 'summonerName',
-          summonerName: state.lcu.lobby.members[0].summonerName
+          summonerName: state.lcu.lobby.members?.[0].summonerName
         })
       }
 

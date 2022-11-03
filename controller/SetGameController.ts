@@ -12,29 +12,42 @@ export class SetGameController extends Controller {
       version: 1
     }
 
+    const staticData = await this.pluginContext.LPTE.request({
+      meta: {
+        namespace: 'module-league-static',
+        type: 'request-constants',
+        version: 1
+      }
+    })
+
+    if (!staticData) {
+      this.pluginContext.log.info(
+        `Failed to load statics`
+      )
+      this.pluginContext.LPTE.emit({
+        meta: replyMeta
+      })
+      return
+    }
+
     if (event.by === 'summonerName') {
       // Load game using plugin-webapi
       this.pluginContext.log.debug(
         `Loading livegame for summoner=${event.summonerName}`
       )
 
-      const gameResponse = await this.pluginContext.LPTE.request(
-        {
-          meta: {
-            namespace: 'plugin-webapi',
-            type: 'fetch-livegame',
-            version: 1
-          },
-          summonerName: event.summonerName,
-          retries: 10
+      const gameResponse = await this.pluginContext.LPTE.request({
+        meta: {
+          namespace: 'plugin-webapi',
+          type: 'fetch-livegame',
+          version: 1
         },
-        30000
-      )
-
-      if (!gameResponse) return
+        summonerName: event.summonerName,
+        retries: 0
+      })
 
       if (!gameResponse || gameResponse.failed) {
-        this.pluginContext.log.info(
+        this.pluginContext.log.error(
           `Loading livegame failed for summoner=${event.summonerName}`
         )
         this.pluginContext.LPTE.emit({
@@ -42,16 +55,6 @@ export class SetGameController extends Controller {
         })
         return
       }
-
-      const staticData = await this.pluginContext.LPTE.request({
-        meta: {
-          namespace: 'module-league-static',
-          type: 'request-constants',
-          version: 1
-        }
-      })
-
-      if (!staticData) return
 
       state.web.live = extendLiveGameWithStatic(
         gameResponse.game,
