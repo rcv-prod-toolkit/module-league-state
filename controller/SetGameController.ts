@@ -93,8 +93,6 @@ export class SetGameController extends Controller {
       state.web.match = gameResponse?.match
       state.web.timeline = gameResponse?.timeline
 
-      this.pluginContext.log.warn(JSON.stringify(gameResponse))
-
       if (!gameResponse || gameResponse.failed) {
         this.pluginContext.log.error(
           `Loading match failed for gameId=${event.gameId}`
