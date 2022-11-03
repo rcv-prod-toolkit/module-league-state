@@ -251,6 +251,13 @@ export class LCUDataReaderController extends Controller {
         )
       }
 
+      if (!state.lcu.champselect._available) {
+        state.lcu.champselect._available = true
+        state.lcu.champselect._created = new Date()
+        state.lcu.champselect._updated = new Date()
+        this.recording = []
+      }
+
       // Only trigger if event changes, to only load game once
       if (
         state.lcu.champselect &&
