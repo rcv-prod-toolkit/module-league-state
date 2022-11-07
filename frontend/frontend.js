@@ -1,12 +1,18 @@
-let staticURL = '/serve/module-league-static'
+const staticURL = '/serve/module-league-static'
 let champions = []
 
-const champImg = (championId) => {
+const champImg = (id) => {
+  if (!id) {
+    return document.createElement('div')
+  }
+
   const champ = champions.find((c) => {
-    return c.key === championId.toString()
+    return c.key === id.toString()
   })
 
-  if (champ === undefined) return ''
+  if (champ === undefined) {
+    return document.createElement('div')
+  }
 
   const img = document.createElement('img')
   img.src = `${staticURL}/img/champion/tiles/${champ.id}_0.jpg`
@@ -14,9 +20,13 @@ const champImg = (championId) => {
   img.height = 25
   return img
 }
-const spellImg = (id) => {
+const summonerIcon = (id) => {
+  if (!id) {
+    return document.createElement('div')
+  }
+
   const img = document.createElement('img')
-  img.src = id ? `${staticURL}/img/summoner-spell/${id}.png` : ''
+  img.src = id ? `${staticURL}/img/profileicon/${id}.png` : ''
   img.width = 25
   img.height = 25
   return img
@@ -52,6 +62,7 @@ const updateUi = (state) => {
   setStatus('web-live', state.web.live)
   setStatus('web-match', state.web.match)
   setStatus('web-timeline', state.web.timeline)
+  setStatus('in-game', state.live)
 
   if (state?.web?.live?.participants) {
     ParticipantTable(state.web.live.participants)
@@ -134,39 +145,138 @@ const updateState = async () => {
   updateUi(response.state)
 }
 
-const getTeam = (teamId) => (teamId === 100 ? 'blue' : 'red')
+function addNicknameField (nick, name) {
+  const input = document.createElement('input')
+  input.type = 'text'
+  input.dataset.name = name
+  input.value = nick
+  input.placeholder = 'Nickname'
 
-const ParticipantTable = (participants) => {
-  const tbl = document.createElement('table')
-  tbl.classList.add('table')
-
-  const tblH = document.createElement('thead')
-  const tblHRow = tblH.insertRow()
-
-  ;['Name', 'Team', 'Champion', 'Spell 1', 'Spell 2'].forEach((element) => {
-    const th = tblHRow.insertCell()
-    th.innerText = element
+  input.addEventListener('change', (e) => {
+    window.LPTE.emit({
+      meta: {
+        namespace: 'module-league-state',
+        type: 'change-player-nick'
+      },
+      summonerName: e.target.dataset.name,
+      nickname: e.target.value
+    })
   })
 
-  tbl.appendChild(tblH)
-
-  const tblB = document.createElement('tbody')
-
-  participants.forEach((participant) => {
-    const tr = tblB.insertRow()
-    tr.insertCell().innerText = participant.summonerName
-    tr.insertCell().innerText = getTeam(participant.teamId)
-    tr.insertCell().innerText = participant.champion?.name || ''
-    tr.insertCell().appendChild(spellImg(participant.spell1Id))
-    tr.insertCell().appendChild(spellImg(participant.spell2Id))
-  })
-
-  tbl.appendChild(tblB)
-
-  document.querySelector('#participant-table').innerHTML = ''
-  document.querySelector('#participant-table').appendChild(tbl)
+  return input
 }
 
+const ParticipantTable = (participants) => {
+  const blueTeam = participants.filter((p) => p.teamId === 100)
+  const redTeam = participants.filter((p) => p.teamId === 200)
+
+  document.querySelector('#participant-table').innerHTML = ''
+  for (const team of [blueTeam, redTeam]) {
+    const tbl = document.createElement('table')
+    tbl.classList.add('table')
+
+    const tblH = document.createElement('thead')
+    const tblHRow = tblH.insertRow()
+
+    ;['', '', 'Name', 'Nickname'].forEach((element) => {
+      const th = tblHRow.insertCell()
+      th.innerText = element
+    })
+
+    tbl.appendChild(tblH)
+
+    const tblB = document.createElement('tbody')
+
+    team.forEach((participant) => {
+      const tr = tblB.insertRow()
+      tr.insertCell().appendChild(summonerIcon(participant.summonerIconId))
+      tr.insertCell().appendChild(champImg(participant.championId))
+      tr.insertCell().innerText = participant.summonerName
+      tr.insertCell().appendChild(addNicknameField(participant.nickname || participant.summonerName, participant.summonerName))
+    })
+
+    tbl.appendChild(tblB)
+
+    document.querySelector('#participant-table').appendChild(tbl)
+    /* slist(tbl) */
+  }
+}
+
+function slist(target) {
+  target.classList.add('slist')
+  const items = target.getElementsByTagName('li')
+  let current = null
+
+  for (const i of items) {
+    i.draggable = true
+
+    i.ondragstart = () => {
+      current = i
+      for (const it of items) {
+        if (it !== current) {
+          it.classList.add('hint')
+        }
+      }
+    }
+
+    i.ondragenter = () => {
+      if (i !== current) {
+        i.classList.add('active')
+      }
+    }
+
+    i.ondragleave = () => {
+      i.classList.remove('active')
+    }
+
+    i.ondragend = () => {
+      for (const it of items) {
+        it.classList.remove('hint')
+        it.classList.remove('active')
+      }
+    }
+
+    i.ondragover = (evt) => {
+      evt.preventDefault()
+    }
+
+    i.ondrop = (evt) => {
+      evt.preventDefault()
+
+      if (i !== current) {
+        let currentpos = 0
+        let droppedpos = 0
+
+        for (let it = 0; it < items.length; it++) {
+          if (current === items[it]) {
+            currentpos = it
+          }
+          if (i === items[it]) {
+            droppedpos = it
+          }
+        }
+
+        window.LPTE.emit({
+          meta: {
+            namespace: 'module-league-state',
+            type: 'swap-player'
+          },
+          currentpos,
+          droppedpos,
+          team: parseInt(i.dataset.team)
+        })
+
+        if (currentpos < droppedpos) {
+          i.parentNode.insertBefore(current, i.nextSibling)
+        } else {
+          i.parentNode.insertBefore(current, i)
+        }
+      }
+    }
+  }
+}
+
+const getTeam = (teamId) => (teamId === 100 ? 'blue' : 'red')
 const BanTable = (bans) => {
   const tbl = document.createElement('table')
   tbl.classList.add('table')
@@ -212,8 +322,8 @@ const BanTable = (bans) => {
 }
 
 const start = async () => {
-  setInterval(updateState, 5000)
   updateState()
+
   const constantsRes = await LPTE.request({
     meta: {
       namespace: 'module-league-static',
