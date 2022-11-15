@@ -35,9 +35,12 @@ module.exports = async (ctx: PluginContext) => {
   if (configRes === undefined) {
     ctx.log.warn('config could not be loaded')
   }
-  let config = Object.assign({
-    recordChampselect: true
-  }, configRes?.config)
+  let config = Object.assign(
+    {
+      recordChampselect: true
+    },
+    configRes?.config
+  )
 
   const requestController = new RequestController(ctx)
   const setGameController = new SetGameController(ctx)
@@ -141,22 +144,24 @@ module.exports = async (ctx: PluginContext) => {
     lcuDataReaderController.handle(e)
   })
 
-
   ctx.LPTE.on(namespace, 'change-player-nick', (e) => {
-    const index = (state.lcu.lobby.members as any[]).findIndex(p => p.summonerName = e.summonerName)
+    const index = (state.lcu.lobby.members as any[]).findIndex(
+      (p) => (p.summonerName = e.summonerName)
+    )
     if (index === -1) return
     state.lcu.lobby.members[index].nickname = e.nickname
   })
 
-  ctx.LPTE.on(namespace, 'swap-player', (e) => {    
-    const playerOrder: Map<string, [100 | 200, number, number]> = state.lcu.lobby.playerOrder
+  ctx.LPTE.on(namespace, 'swap-player', (e) => {
+    const playerOrder: Map<string, [100 | 200, number, number]> =
+      state.lcu.lobby.playerOrder
 
     playerOrder.forEach((po, i) => {
       if (po[2] === e.currentpos) {
         playerOrder.get(i)![2] = e.droppedpos
         state.lcu.lobby.members = state.lcu.lobby.members.map((p: any) => {
           if (p.summonerName === i) {
-            return {...p, sortedPosition: e.droppedpos}
+            return { ...p, sortedPosition: e.droppedpos }
           } else {
             return p
           }
@@ -169,7 +174,7 @@ module.exports = async (ctx: PluginContext) => {
           playerOrder.get(i)![2] -= 1
           state.lcu.lobby.members = state.lcu.lobby.members.map((p: any) => {
             if (p.summonerName === i) {
-              return {...p, sortedPosition: p.sortedPosition - 1}
+              return { ...p, sortedPosition: p.sortedPosition - 1 }
             } else {
               return p
             }
@@ -181,20 +186,23 @@ module.exports = async (ctx: PluginContext) => {
           playerOrder.get(i)![2] += 1
           state.lcu.lobby.members = state.lcu.lobby.members.map((p: any) => {
             if (p.summonerName === i) {
-              return {...p, sortedPosition: p.sortedPosition + 1}
+              return { ...p, sortedPosition: p.sortedPosition + 1 }
             } else {
               return p
             }
           })
           return
-        } 
+        }
       }
     })
 
     state.lcu.lobby.playerOrder = playerOrder
     state.lcu.lobby.members.sort((a: any, b: any) => {
-      return a.sortedPosition < b.sortedPosition ? -1 :
-        a.sortedPosition > b.sortedPosition ? 1 : 0
+      return a.sortedPosition < b.sortedPosition
+        ? -1
+        : a.sortedPosition > b.sortedPosition
+        ? 1
+        : 0
     })
   })
 
@@ -210,6 +218,9 @@ module.exports = async (ctx: PluginContext) => {
 
   ctx.LPTE.on('module-league-static', 'static-loaded', async (e) => {
     leagueStatic = e.constants
-    lcuDataReaderController = new LCUDataReaderController(ctx, config.recordChampselect)
+    lcuDataReaderController = new LCUDataReaderController(
+      ctx,
+      config.recordChampselect
+    )
   })
 }

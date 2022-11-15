@@ -38,12 +38,12 @@ export class LCUDataReaderController extends Controller {
       order:
         state.lcu.champselect.order !== undefined
           ? {
-            ...convertState(
-              state,
-              state.lcu.champselect.order as any,
-              leagueStatic
-            )
-          }
+              ...convertState(
+                state,
+                state.lcu.champselect.order as any,
+                leagueStatic
+              )
+            }
           : undefined,
       isActive: state.lcu.champselect._available
     })
@@ -67,31 +67,8 @@ export class LCUDataReaderController extends Controller {
     for (let i = 0; i < this.recording.length; i++) {
       const event = this.recording[i]
 
-      this.replayPlayer.push(setTimeout(() => {
-        this.pluginContext.LPTE.emit({
-          meta: {
-            namespace: this.pluginContext.plugin.module.getName(),
-            type: 'champselect-update',
-            version: 1
-          },
-          data: {
-            ...event,
-            showSummoners:
-              event.phase !== PickBanPhase.GAME_STARTING &&
-              event.phase === PickBanPhase.GAME_STARTING
-          },
-          isActive: i >= this.recording.length
-        })
-
-        if (this.refreshTask) {
-          clearInterval(this.refreshTask)
-          this.refreshTask = undefined
-        }
-        this.refreshTask = setInterval(() => {
-          if (event.timer > 0) {
-            event.timer -= 1
-          }
-
+      this.replayPlayer.push(
+        setTimeout(() => {
           this.pluginContext.LPTE.emit({
             meta: {
               namespace: this.pluginContext.plugin.module.getName(),
@@ -99,20 +76,45 @@ export class LCUDataReaderController extends Controller {
               version: 1
             },
             data: {
-              ...event
+              ...event,
+              showSummoners:
+                event.phase !== PickBanPhase.GAME_STARTING &&
+                event.phase === PickBanPhase.GAME_STARTING
             },
             isActive: i >= this.recording.length
           })
-        }, 1000)
 
-        if (i >= this.recording.length - 1) {
-          this.replayIsPlaying = false
           if (this.refreshTask) {
             clearInterval(this.refreshTask)
             this.refreshTask = undefined
           }
-        }
-      }, event.timeAfterStart))
+          this.refreshTask = setInterval(() => {
+            if (event.timer > 0) {
+              event.timer -= 1
+            }
+
+            this.pluginContext.LPTE.emit({
+              meta: {
+                namespace: this.pluginContext.plugin.module.getName(),
+                type: 'champselect-update',
+                version: 1
+              },
+              data: {
+                ...event
+              },
+              isActive: i >= this.recording.length
+            })
+          }, 1000)
+
+          if (i >= this.recording.length - 1) {
+            this.replayIsPlaying = false
+            if (this.refreshTask) {
+              clearInterval(this.refreshTask)
+              this.refreshTask = undefined
+            }
+          }
+        }, event.timeAfterStart)
+      )
     }
   }
 
@@ -121,16 +123,22 @@ export class LCUDataReaderController extends Controller {
     if (this.refreshTask) clearInterval(this.refreshTask)
     this.refreshTask = undefined
 
-    this.replayPlayer.forEach(r => {
+    this.replayPlayer.forEach((r) => {
       clearTimeout(r)
     })
   }
 
   addOrUpdatePlayer(player: any): any {
-    const team = player.teamId === 100 ? state.lcu.lobby.gameConfig.customTeam100 : state.lcu.lobby.gameConfig.customTeam200
+    const team =
+      player.teamId === 100
+        ? state.lcu.lobby.gameConfig.customTeam100
+        : state.lcu.lobby.gameConfig.customTeam200
     const i = team.findIndex((p: any) => p.summonerId === player.summonerId)
 
-    const lcuPosition = player.teamId === 100 ? i : i + state.lcu.lobby.gameConfig.customTeam100.length
+    const lcuPosition =
+      player.teamId === 100
+        ? i
+        : i + state.lcu.lobby.gameConfig.customTeam100.length
 
     if (state.lcu.lobby.playerOrder.has(player.summonerName)) {
       if (i !== state.lcu.lobby.playerOrder.get(player.summonerName)[2]) {
@@ -149,12 +157,18 @@ export class LCUDataReaderController extends Controller {
           nickname: player.summonerName,
           ...player,
           lcuPosition,
-          sortedPosition: state.lcu.lobby.playerOrder.get(player.summonerName)[2],
+          sortedPosition: state.lcu.lobby.playerOrder.get(
+            player.summonerName
+          )[2],
           elo: team[i].elo
         }
       }
     } else {
-      state.lcu.lobby.playerOrder.set(player.summonerName, [player.teamId, lcuPosition, lcuPosition])
+      state.lcu.lobby.playerOrder.set(player.summonerName, [
+        player.teamId,
+        lcuPosition,
+        lcuPosition
+      ])
 
       return {
         nickname: player.summonerName,
@@ -174,14 +188,21 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby._created = new Date()
       state.lcu.lobby._updated = new Date()
 
-      state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, number, number]>
+      state.lcu.lobby.playerOrder = new Map() as Map<
+        string,
+        [100 | 200, number, number]
+      >
 
-      state.lcu.lobby.members = (event.data.members as Array<any>).map(
-        (player: any) => {
+      state.lcu.lobby.members = (event.data.members as Array<any>)
+        .map((player: any) => {
           return this.addOrUpdatePlayer(player)
-        }).sort((a, b) => {
-          return a.sortedPosition < b.sortedPosition ? -1 :
-            a.sortedPosition > b.sortedPosition ? 1 : 0
+        })
+        .sort((a, b) => {
+          return a.sortedPosition < b.sortedPosition
+            ? -1
+            : a.sortedPosition > b.sortedPosition
+            ? 1
+            : 0
         })
 
       this.pluginContext.log.info('Flow: lobby - active')
@@ -193,24 +214,33 @@ export class LCUDataReaderController extends Controller {
       state.lcu.lobby._updated = new Date()
 
       if (state.lcu.lobby.playerOrder === undefined) {
-        state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, number, number]>
+        state.lcu.lobby.playerOrder = new Map() as Map<
+          string,
+          [100 | 200, number, number]
+        >
       }
 
-      state.lcu.lobby.members = (event.data.members as any[]).map(
-        (player: any, i) => {
+      state.lcu.lobby.members = (event.data.members as any[])
+        .map((player: any, i) => {
           return this.addOrUpdatePlayer(player)
-        }
-      ).sort((a, b) => {
-        return a.sortedPosition < b.sortedPosition ? -1 :
-          a.sortedPosition > b.sortedPosition ? 1 : 0
-      })
+        })
+        .sort((a, b) => {
+          return a.sortedPosition < b.sortedPosition
+            ? -1
+            : a.sortedPosition > b.sortedPosition
+            ? 1
+            : 0
+        })
 
       this.emitLobbyUpdate()
     }
     if (event.meta.type === 'lcu-lobby-delete') {
       state.lcu.lobby._available = false
       state.lcu.lobby._deleted = new Date()
-      state.lcu.lobby.playerOrder = new Map() as Map<string, [100 | 200, number, number]>
+      state.lcu.lobby.playerOrder = new Map() as Map<
+        string,
+        [100 | 200, number, number]
+      >
 
       this.pluginContext.log.info('Flow: lobby - inactive')
       this.emitLobbyUpdate()

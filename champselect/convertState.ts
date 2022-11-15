@@ -22,75 +22,76 @@ const convertTeam = ({
   leagueStatic: any
 }) => {
   const newTeam = new Team()
-  newTeam.picks = team.map((cell: Cell) => {
-    const currentAction = actions.find((action) => !action.completed)
+  newTeam.picks = team
+    .map((cell: Cell) => {
+      const currentAction = actions.find((action) => !action.completed)
 
-    const summonerSearch = gameState.lcu.lobby.members?.find(
-      (member: any) => member.summonerId === cell.summonerId
-    )
+      const summonerSearch = gameState.lcu.lobby.members?.find(
+        (member: any) => member.summonerId === cell.summonerId
+      )
 
-    /* cell.cellId = summonerSearch ? summonerSearch.sortedPosition : cell.cellId */
+      /* cell.cellId = summonerSearch ? summonerSearch.sortedPosition : cell.cellId */
 
-    const pick = new Pick(cell.cellId)
+      const pick = new Pick(cell.cellId)
 
-    pick.spell1 = {
-      id: cell.spell1Id,
-      icon: cell.spell1Id
-        ? `/serve/module-league-static/img/summoner-spell/${cell.spell1Id}.png`
-        : ''
-    }
+      pick.spell1 = {
+        id: cell.spell1Id,
+        icon: cell.spell1Id
+          ? `/serve/module-league-static/img/summoner-spell/${cell.spell1Id}.png`
+          : ''
+      }
 
-    pick.spell2 = {
-      id: cell.spell2Id,
-      icon: cell.spell2Id
-        ? `/serve/module-league-static/img/summoner-spell/${cell.spell2Id}.png`
-        : ''
-    }
+      pick.spell2 = {
+        id: cell.spell2Id,
+        icon: cell.spell2Id
+          ? `/serve/module-league-static/img/summoner-spell/${cell.spell2Id}.png`
+          : ''
+      }
 
-    const championSearch = leagueStatic.champions.find(
-      (c: any) => c.key === cell.championId.toString()
-    )
-    let champion: any
-    if (championSearch !== undefined) {
-      champion = championSearch
-    }
-    pick.champion = {
-      id: cell.championId,
-      name: champion ? champion.name : '',
-      idName: champion ? champion.id.toString() : '',
-      loadingImg: champion
-        ? `/serve/module-league-static/img/champion/loading/${champion.id}_0.jpg`
-        : '',
-      splashImg: champion
-        ? `/serve/module-league-static/img/champion/splash/${champion.id}_0.jpg`
-        : '',
-      splashCenteredImg: champion
-        ? `/serve/module-league-static/img/champion/centered/${champion.key}.jpg`
-        : '',
-      squareImg: champion
-        ? `/serve/module-league-static/img/champion/tiles/${champion.id}_0.jpg`
-        : ''
-    }
+      const championSearch = leagueStatic.champions.find(
+        (c: any) => c.key === cell.championId.toString()
+      )
+      let champion: any
+      if (championSearch !== undefined) {
+        champion = championSearch
+      }
+      pick.champion = {
+        id: cell.championId,
+        name: champion ? champion.name : '',
+        idName: champion ? champion.id.toString() : '',
+        loadingImg: champion
+          ? `/serve/module-league-static/img/champion/loading/${champion.id}_0.jpg`
+          : '',
+        splashImg: champion
+          ? `/serve/module-league-static/img/champion/splash/${champion.id}_0.jpg`
+          : '',
+        splashCenteredImg: champion
+          ? `/serve/module-league-static/img/champion/centered/${champion.key}.jpg`
+          : '',
+        squareImg: champion
+          ? `/serve/module-league-static/img/champion/tiles/${champion.id}_0.jpg`
+          : ''
+      }
 
-    if (summonerSearch !== undefined) {
-      pick.displayName = summonerSearch.nickname
-    }
+      if (summonerSearch !== undefined) {
+        pick.displayName = summonerSearch.nickname
+      }
 
-    if (
-      currentAction &&
-      currentAction.type === ActionType.PICK &&
-      currentAction.actorCellId === cell.cellId &&
-      !currentAction.completed
-    ) {
-      pick.isActive = true
-      newTeam.isActive = true
-    }
+      if (
+        currentAction &&
+        currentAction.type === ActionType.PICK &&
+        currentAction.actorCellId === cell.cellId &&
+        !currentAction.completed
+      ) {
+        pick.isActive = true
+        newTeam.isActive = true
+      }
 
-    return pick
-  }).sort((a, b) => {
-    return a.id < b.id ? -1 :
-      a.id > b.id ? 1 : 0
-  })
+      return pick
+    })
+    .sort((a, b) => {
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
+    })
 
   const isInThisTeam = (cellId: number) =>
     team.filter((cell) => cell.cellId === cellId).length !== 0

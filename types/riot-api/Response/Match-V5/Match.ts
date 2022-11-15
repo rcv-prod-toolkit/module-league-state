@@ -1,72 +1,72 @@
-import { Metadata } from "./Metadata";
+import { Metadata } from './Metadata'
 
 export interface Match {
   /**
    * Match metadata.
-  */
+   */
   metadata: Metadata
   /**
    * Match info.
-  */
+   */
   info: Info
 }
 
 export interface Info {
   /**
-     * Unix timestamp for when the game is created on the game server
-     * (i.e. the loading screen).
-    */
-   gameCreation: number
-   /**
-    * Prior to patch 11.2number this field returns the game length in milliseconds calculated from gameEndTimestamp - gameStartTimestamp. Post patch 11.2number this field returns the max timePlayed of any participant in the game in seconds
-    * which makes the behavior of this field consistent with that of match-v4. The best way to handling the change in this field is to treat the value as milliseconds if the gameEndTimestamp field isn't in the response and to treat the value as seconds if gameEndTimestamp is in the response.
+   * Unix timestamp for when the game is created on the game server
+   * (i.e. the loading screen).
    */
-   gameDuration: number
-   /**
-    * Unix timestamp for when match ends on the game server.
-    * This timestamp can occasionally be significantly longer than when the match "ends".
-    * The most reliable way of determining the timestamp for the end of the match would be to add the max time played of any participant to the gameStartTimestamp.
-    * This field was added to match-v5 in patch 11.2number on Oct 5th 2number21.
+  gameCreation: number
+  /**
+   * Prior to patch 11.2number this field returns the game length in milliseconds calculated from gameEndTimestamp - gameStartTimestamp. Post patch 11.2number this field returns the max timePlayed of any participant in the game in seconds
+   * which makes the behavior of this field consistent with that of match-v4. The best way to handling the change in this field is to treat the value as milliseconds if the gameEndTimestamp field isn't in the response and to treat the value as seconds if gameEndTimestamp is in the response.
    */
-   gameEndTimestamp: number
-   gameId: number
-   /**
-    * Refer to the Game Constants documentation.
-    * https://static.developer.riotgames.com/docs/lol/gameModes.json
+  gameDuration: number
+  /**
+   * Unix timestamp for when match ends on the game server.
+   * This timestamp can occasionally be significantly longer than when the match "ends".
+   * The most reliable way of determining the timestamp for the end of the match would be to add the max time played of any participant to the gameStartTimestamp.
+   * This field was added to match-v5 in patch 11.2number on Oct 5th 2number21.
    */
-   gameMode: string
-   gameName: string
-   /**
-    * Unix timestamp for when match starts on the game server.
+  gameEndTimestamp: number
+  gameId: number
+  /**
+   * Refer to the Game Constants documentation.
+   * https://static.developer.riotgames.com/docs/lol/gameModes.json
    */
-   gameStartTimestamp: number
-   gameType: string
-   /**
-    * The first two parts can be used to determine the patch a game was played on.
+  gameMode: string
+  gameName: string
+  /**
+   * Unix timestamp for when match starts on the game server.
    */
-   gameVersion: string
-   /**
-    * Refer to the Game Constants documentation.
-    * https://static.developer.riotgames.com/docs/lol/maps.json
+  gameStartTimestamp: number
+  gameType: string
+  /**
+   * The first two parts can be used to determine the patch a game was played on.
    */
-   mapId: number
-   participants: Array<ParticipantStats>
-   /**
-    * Platform where the match was played.
+  gameVersion: string
+  /**
+   * Refer to the Game Constants documentation.
+   * https://static.developer.riotgames.com/docs/lol/maps.json
    */
-   platformId: string
-   /**
-    * Refer to the Game Constants documentation.
-    * https://static.developer.riotgames.com/docs/lol/queues.json
+  mapId: number
+  participants: Array<ParticipantStats>
+  /**
+   * Platform where the match was played.
    */
-   queueId: number
-   teams: Array<Team>
-   /**
-    * Tournament code used to generate the match.
-    * This field was added to match-v5 in patch 11.13 on June 23rd 2number21.
+  platformId: string
+  /**
+   * Refer to the Game Constants documentation.
+   * https://static.developer.riotgames.com/docs/lol/queues.json
    */
-   tournamentCode: string
-} 
+  queueId: number
+  teams: Array<Team>
+  /**
+   * Tournament code used to generate the match.
+   * This field was added to match-v5 in patch 11.13 on June 23rd 2number21.
+   */
+  tournamentCode: string
+}
 
 export interface ParticipantStats {
   assists: number
@@ -189,13 +189,13 @@ export interface ParticipantStats {
   /**
    * Prior to patch 11.4 on Feb 18th 2number21 this field returned invalid championIds.
    * We recommend determining the champion based on the championName field for matches played prior to patch 11.4.
-  */
+   */
   championId: number
   championName: string
   /**
    * This field is currently only utilized for Kayn's transformations.
    * (Legal values: number - None 1 - Slayer 2 - Assassin)
-  */
+   */
   championTransform: 0 | 1 | 2
   consumablesPurchased: number
   damageDealtToBuildings: number
@@ -219,7 +219,7 @@ export interface ParticipantStats {
    * The individualPosition is the best guess for which position the player actually played in isolation of anything else.
    * The teamPosition is the best guess for which position the player actually played if we add the constraint that each team must have one top player one jungle one middle etc
    *  Generally the recommendation is to use the teamPosition field over the individualPosition field.
-  */
+   */
   individualPosition: string
   inhibitorKills: number
   inhibitorTakedowns: number
@@ -279,7 +279,7 @@ export interface ParticipantStats {
    * The individualPosition is the best guess for which position the player actually played in isolation of anything else.
    * The teamPosition is the best guess for which position the player actually played if we add the constraint that each team must have one top player one jungle one middle etc.
    * Generally the recommendation is to use the teamPosition field over the individualPosition field.
-  */
+   */
   teamPosition: string
   timeCCingOthers: number
   timePlayed: number
@@ -318,7 +318,7 @@ export interface Perks {
 }
 
 export interface PerkStyle {
-  description: "primaryStyle" | "subStyle"
+  description: 'primaryStyle' | 'subStyle'
   style: number
   selections: Array<PerkStyleSelection>
 }

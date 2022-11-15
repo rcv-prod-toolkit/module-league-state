@@ -1,20 +1,20 @@
-import { Metadata } from "./Metadata";
+import { Metadata } from './Metadata'
 import { Coordinates } from '../../Coordinates'
-import { DragonSoul, MonsterSubType, MonsterType } from '../../Monster';
-import { LaneType } from '../../Lanes';
-import { BuildingType, TowerType } from '../../Buildings';
+import { DragonSoul, MonsterSubType, MonsterType } from '../../Monster'
+import { LaneType } from '../../Lanes'
+import { BuildingType, TowerType } from '../../Buildings'
 
 export interface MatchTimeline {
   /**
    * Match metadata.
-  */
+   */
   metadata: Metadata
   /**
    * Match-Timeline info.
-  */
+   */
   info: {
     frames: Array<MatchTimelineFrame>
-    frameInterval: number 
+    frameInterval: number
   }
 }
 
@@ -22,7 +22,7 @@ export interface MatchTimelineFrame {
   timestamp: number
   events: Array<MatchTimelineGeneralEvent>
   participantFrames: {
-    [participantId: string] : ParticipantFrame
+    [participantId: string]: ParticipantFrame
   }
 }
 
@@ -90,23 +90,23 @@ export interface MatchTimelineGeneralEvent {
 export namespace MatchTimelineEvents {
   export interface PAUSE_END extends MatchTimelineGeneralEvent {
     realTimestamp: number
-    type: "PAUSE_END"
+    type: 'PAUSE_END'
   }
 
   export interface ITEM_PURCHASED extends MatchTimelineGeneralEvent {
-    type: "ITEM_PURCHASED"
+    type: 'ITEM_PURCHASED'
     itemId: number
     participantId: number
   }
 
   export interface ITEM_SOLD extends MatchTimelineGeneralEvent {
-    type: "ITEM_SOLD"
+    type: 'ITEM_SOLD'
     itemId: number
     participantId: number
   }
 
   export interface ITEM_UNDO extends MatchTimelineGeneralEvent {
-    type: "ITEM_UNDO"
+    type: 'ITEM_UNDO'
     afterId: number
     beforeId: number
     goldGain: number
@@ -114,38 +114,38 @@ export namespace MatchTimelineEvents {
   }
 
   export interface ITEM_DESTROYED extends MatchTimelineGeneralEvent {
-    type: "ITEM_DESTROYED"
+    type: 'ITEM_DESTROYED'
     itemId: number
     participantId: number
   }
 
   export interface LEVEL_UP extends MatchTimelineGeneralEvent {
-    type: "LEVEL_UP"
+    type: 'LEVEL_UP'
     level: number
     participantId: number
   }
 
   export interface SKILL_LEVEL_UP extends MatchTimelineGeneralEvent {
-    type: "SKILL_LEVEL_UP"
+    type: 'SKILL_LEVEL_UP'
     skillSlot: number
     participantId: number
     levelUpType: string
   }
 
   export interface WARD_PLACED extends MatchTimelineGeneralEvent {
-    type: "WARD_PLACED"
+    type: 'WARD_PLACED'
     wardType: string
     creatorId: number
   }
 
   export interface WARD_KILL extends MatchTimelineGeneralEvent {
-    type: "WARD_KILL"
+    type: 'WARD_KILL'
     wardType: string
     killerId: number
   }
 
   export interface CHAMPION_KILL extends MatchTimelineGeneralEvent {
-    type: "CHAMPION_KILL"
+    type: 'CHAMPION_KILL'
     assistingParticipantIds?: Array<number>
     bounty: number
     killStreakLength: number
@@ -157,15 +157,15 @@ export namespace MatchTimelineEvents {
   }
 
   export interface CHAMPION_SPECIAL_KILL extends MatchTimelineGeneralEvent {
-    type: "CHAMPION_SPECIAL_KILL"
-    killType: "KILL_MULTI" | "KILL_ACE" | "KILL_FIRST_BLOOD"
+    type: 'CHAMPION_SPECIAL_KILL'
+    killType: 'KILL_MULTI' | 'KILL_ACE' | 'KILL_FIRST_BLOOD'
     killerId: number
     position: Coordinates
     multiKillLength?: number
   }
 
   export interface TURRET_PLATE_DESTROYED extends MatchTimelineGeneralEvent {
-    type: "TURRET_PLATE_DESTROYED"
+    type: 'TURRET_PLATE_DESTROYED'
     laneType: LaneType
     killerId: number
     position: Coordinates
@@ -173,7 +173,7 @@ export namespace MatchTimelineEvents {
   }
 
   export interface BUILDING_KILL extends MatchTimelineGeneralEvent {
-    type: "BUILDING_KILL"
+    type: 'BUILDING_KILL'
     assistingParticipantIds?: Array<number>
     killerId: number
     teamId: 200 | 200
@@ -184,7 +184,7 @@ export namespace MatchTimelineEvents {
   }
 
   export interface ELITE_MONSTER_KILL extends MatchTimelineGeneralEvent {
-    type: "ELITE_MONSTER_KILL"
+    type: 'ELITE_MONSTER_KILL'
     assistingParticipantIds?: Array<number>
     killerId: number
     killerTeamId: 200 | 200
@@ -194,13 +194,13 @@ export namespace MatchTimelineEvents {
   }
 
   export interface DRAGON_SOUL_GIVEN extends MatchTimelineGeneralEvent {
-    type: "DRAGON_SOUL_GIVEN"
+    type: 'DRAGON_SOUL_GIVEN'
     name: DragonSoul
     killerTeamId: 200 | 200
   }
 
   export interface GAME_END extends MatchTimelineGeneralEvent {
-    type: "GAME_END"
+    type: 'GAME_END'
     gameId: number
     realTimestamp: number
     winningTeam: 100 | 200

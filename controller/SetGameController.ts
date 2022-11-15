@@ -21,9 +21,7 @@ export class SetGameController extends Controller {
     })
 
     if (!staticData) {
-      this.pluginContext.log.info(
-        `Failed to load statics`
-      )
+      this.pluginContext.log.info(`Failed to load statics`)
       this.pluginContext.LPTE.emit({
         meta: replyMeta
       })
@@ -118,7 +116,10 @@ export class SetGameController extends Controller {
               challenges: {},
               champExperience: 0,
               champLevel: 0,
-              championId: basename(p.championSquarePortraitPath, extname(p.championSquarePortraitPath)),
+              championId: basename(
+                p.championSquarePortraitPath,
+                extname(p.championSquarePortraitPath)
+              ),
               championName: p.championName,
               championTransform: 0,
               consumablesPurchased: 0,
@@ -158,7 +159,8 @@ export class SetGameController extends Controller {
               largestMultiKill: p.stats.LARGEST_MULTI_KILL,
               longestTimeSpentLiving: 0,
               magicDamageDealt: p.stats.MAGIC_DAMAGE_DEALT_TO_CHAMPIONS,
-              magicDamageDealtToChampions: p.stats.MAGIC_DAMAGE_DEALT_TO_CHAMPIONS,
+              magicDamageDealtToChampions:
+                p.stats.MAGIC_DAMAGE_DEALT_TO_CHAMPIONS,
               magicDamageTaken: p.stats.MAGIC_DAMAGE_TAKEN,
               neutralMinionsKilled: p.stats.NEUTRAL_MINIONS_KILLED,
               nexusKills: 0,
@@ -170,7 +172,8 @@ export class SetGameController extends Controller {
               pentaKills: 0,
               perks: {},
               physicalDamageDealt: p.stats.PHYSICAL_DAMAGE_DEALT_TO_CHAMPIONS,
-              physicalDamageDealtToChampions: p.stats.PHYSICAL_DAMAGE_DEALT_TO_CHAMPIONS,
+              physicalDamageDealtToChampions:
+                p.stats.PHYSICAL_DAMAGE_DEALT_TO_CHAMPIONS,
               physicalDamageTaken: p.stats.PHYSICAL_DAMAGE_TAKEN,
               profileIcon: p.profileIconId,
               puuid: p.puuid,
@@ -196,8 +199,10 @@ export class SetGameController extends Controller {
               timeCCingOthers: p.stats.TIME_CCING_OTHERS,
               timePlayed: 0,
               totalDamageDealt: p.stats.TOTAL_DAMAGE_DEALT,
-              totalDamageDealtToChampions: p.stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS,
-              totalDamageShieldedOnTeammates: p.stats.TOTAL_DAMAGE_SHIELDED_ON_TEAMMATES,
+              totalDamageDealtToChampions:
+                p.stats.TOTAL_DAMAGE_DEALT_TO_CHAMPIONS,
+              totalDamageShieldedOnTeammates:
+                p.stats.TOTAL_DAMAGE_SHIELDED_ON_TEAMMATES,
               totalDamageTaken: p.stats.TOTAL_DAMAGE_TAKEN,
               totalHeal: p.stats.TOTAL_HEAL,
               totalHealsOnTeammates: p.stats.TOTAL_HEAL_ON_TEAMMATES,
@@ -207,7 +212,8 @@ export class SetGameController extends Controller {
               totalUnitsHealed: 0,
               tripleKills: 0,
               trueDamageDealt: p.stats.TRUE_DAMAGE_DEALT_PLAYER,
-              trueDamageDealtToChampions: p.stats.TRUE_DAMAGE_DEALT_TO_CHAMPIONS,
+              trueDamageDealtToChampions:
+                p.stats.TRUE_DAMAGE_DEALT_TO_CHAMPIONS,
               trueDamageTaken: p.stats.TRUE_DAMAGE_TAKEN,
               turretKills: p.stats.TURRETS_KILLED,
               turretTakedowns: 0,
@@ -238,7 +244,10 @@ export class SetGameController extends Controller {
               return {
                 teamId: t.teamId,
                 win: t.isWinningTeam,
-                bans: t.teamId === 100 ? state.lcu.champselect.bans?.myTeamBans || [] : state.lcu.champselect.bans?.theirTeamBans || [],
+                bans:
+                  t.teamId === 100
+                    ? state.lcu.champselect.bans?.myTeamBans || []
+                    : state.lcu.champselect.bans?.theirTeamBans || [],
                 objectives: {
                   inhibitor: {
                     first: false,
@@ -254,19 +263,25 @@ export class SetGameController extends Controller {
                   },
                   dragon: {
                     first: false,
-                    kills: state.live.objectives[t.teamId as 100 | 200].filter((o: any) => o.type === 'OnKillDragon_Spectator').length
+                    kills: state.live.objectives[t.teamId as 100 | 200].filter(
+                      (o: any) => o.type === 'OnKillDragon_Spectator'
+                    ).length
                   },
                   baron: {
                     first: false,
-                    kills: state.live.objectives[t.teamId as 100 | 200].filter((o: any) => o.type === 'OnKillRiftHerald_Spectator').length
+                    kills: state.live.objectives[t.teamId as 100 | 200].filter(
+                      (o: any) => o.type === 'OnKillRiftHerald_Spectator'
+                    ).length
                   },
                   riftHerald: {
                     first: false,
-                    kills: state.live.objectives[t.teamId as 100 | 200].filter((o: any) => o.type === 'OnKillWorm_Spectator').length
+                    kills: state.live.objectives[t.teamId as 100 | 200].filter(
+                      (o: any) => o.type === 'OnKillWorm_Spectator'
+                    ).length
                   }
                 }
               }
-            }),
+            })
           }
         }
 

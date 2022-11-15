@@ -33,7 +33,7 @@ export class LeagueStateLive implements LeagueStateDataStructure {
   _updated: Date | undefined
   objectives = {
     100: [],
-    200: [] 
+    200: []
   }
 }
 

@@ -1,16 +1,16 @@
 export enum LaneType {
-  BOT_LANE = "BOT_LANE",
-  MID_LANE = "MID_LANE",
-  TOP_LANE = "TOP_LANE"
+  BOT_LANE = 'BOT_LANE',
+  MID_LANE = 'MID_LANE',
+  TOP_LANE = 'TOP_LANE'
 }
 
 export enum Position {
-  TOP = "TOP",
-  JUNGLE = "JUNGLE",
-  MIDDLE = "MIDDLE",
-  BOTTOM = "BOTTOM",
-  UTILITY = "UTILITY",
-  NONE = "NONE"
+  TOP = 'TOP',
+  JUNGLE = 'JUNGLE',
+  MIDDLE = 'MIDDLE',
+  BOTTOM = 'BOTTOM',
+  UTILITY = 'UTILITY',
+  NONE = 'NONE'
 }
 
 export enum Role {

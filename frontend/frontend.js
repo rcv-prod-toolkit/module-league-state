@@ -145,7 +145,7 @@ const updateState = async () => {
   updateUi(response.state)
 }
 
-function addNicknameField (nick, name) {
+function addNicknameField(nick, name) {
   const input = document.createElement('input')
   input.type = 'text'
   input.dataset.name = name
@@ -192,7 +192,12 @@ const ParticipantTable = (participants) => {
       tr.insertCell().appendChild(summonerIcon(participant.summonerIconId))
       tr.insertCell().appendChild(champImg(participant.championId))
       tr.insertCell().innerText = participant.summonerName
-      tr.insertCell().appendChild(addNicknameField(participant.nickname || participant.summonerName, participant.summonerName))
+      tr.insertCell().appendChild(
+        addNicknameField(
+          participant.nickname || participant.summonerName,
+          participant.summonerName
+        )
+      )
     })
 
     tbl.appendChild(tblB)

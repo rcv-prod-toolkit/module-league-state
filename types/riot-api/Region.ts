@@ -1,12 +1,12 @@
 import { Server } from './Server'
 
 export enum Region {
-  AMERICAS = "americas",
-  ASIA = "asia",
-  EUROPE = "europe"
+  AMERICAS = 'americas',
+  ASIA = 'asia',
+  EUROPE = 'europe'
 }
 
-export function getRegionByServer (server : Server) : Region {
+export function getRegionByServer(server: Server): Region {
   switch (server) {
     case Server.NA:
     case Server.BR:
@@ -24,5 +24,5 @@ export function getRegionByServer (server : Server) : Region {
       return Region.EUROPE
     default:
       return Region.EUROPE
-  } 
+  }
 }
