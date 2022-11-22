@@ -206,7 +206,7 @@ export class SetGameController extends Controller {
               totalDamageTaken: p.stats.TOTAL_DAMAGE_TAKEN,
               totalHeal: p.stats.TOTAL_HEAL,
               totalHealsOnTeammates: p.stats.TOTAL_HEAL_ON_TEAMMATES,
-              totalMinionsKilled: p.stats.MINIONS_KILLED,
+              totalMinionsKilled: p.stats.MINIONS_KILLED + p.stats.NEUTRAL_MINIONS_KILLED,
               totalTimeCCDealt: p.stats.TOTAL_TIME_CROWD_CONTROL_DEALT,
               totalTimeSpentDead: p.stats.TOTAL_TIME_SPENT_DEAD,
               totalUnitsHealed: 0,
