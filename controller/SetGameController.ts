@@ -99,7 +99,7 @@ export class SetGameController extends Controller {
           `Loading match failed for gameId=${event.gameId}`
         )
 
-        if (state.lcu?.eog === undefined || !state.lcu.eog._available) {
+        if (state.lcu?.eog === undefined || state.lcu.eog === null || !state.lcu.eog._available) {
           this.pluginContext.LPTE.emit({
             meta: replyMeta
           })
