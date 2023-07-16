@@ -146,9 +146,11 @@ module.exports = async (ctx: PluginContext) => {
 
   ctx.LPTE.on(namespace, 'change-player-nick', (e) => {
     const index = (state.lcu.lobby.members as any[]).findIndex(
-      (p) => (p.summonerName = e.summonerName)
+      (p) => p.summonerName === e.summonerName
     )
+
     if (index === -1) return
+
     state.lcu.lobby.members[index].nickname = e.nickname
   })
 
@@ -201,8 +203,8 @@ module.exports = async (ctx: PluginContext) => {
       return a.sortedPosition < b.sortedPosition
         ? -1
         : a.sortedPosition > b.sortedPosition
-        ? 1
-        : 0
+          ? 1
+          : 0
     })
   })
 

@@ -38,12 +38,12 @@ export class LCUDataReaderController extends Controller {
       order:
         state.lcu.champselect.order !== undefined
           ? {
-              ...convertState(
-                state,
-                state.lcu.champselect.order as any,
-                leagueStatic
-              )
-            }
+            ...convertState(
+              state,
+              state.lcu.champselect.order as any,
+              leagueStatic
+            )
+          }
           : undefined,
       isActive: state.lcu.champselect._available
     })
@@ -135,6 +135,10 @@ export class LCUDataReaderController extends Controller {
         : state.lcu.lobby.gameConfig.customTeam200
     const i = team.findIndex((p: any) => p.summonerId === player.summonerId)
 
+    const member = state.lcu.lobby.members.find((m: any) =>
+      m.summonerId === player.summonerId
+    )
+
     const lcuPosition =
       player.teamId === 100
         ? i
@@ -146,7 +150,7 @@ export class LCUDataReaderController extends Controller {
         state.lcu.lobby.playerOrder.get(player.summonerName)[2] = i
 
         return {
-          nickname: player.summonerName,
+          nickname: member?.nickname ?? player.summonerName,
           ...player,
           lcuPosition,
           sortedPosition: i,
@@ -154,7 +158,7 @@ export class LCUDataReaderController extends Controller {
         }
       } else {
         return {
-          nickname: player.summonerName,
+          nickname: member?.nickname ?? player.summonerName,
           ...player,
           lcuPosition,
           sortedPosition: state.lcu.lobby.playerOrder.get(
@@ -201,15 +205,15 @@ export class LCUDataReaderController extends Controller {
           return a.sortedPosition < b.sortedPosition
             ? -1
             : a.sortedPosition > b.sortedPosition
-            ? 1
-            : 0
+              ? 1
+              : 0
         })
 
       this.pluginContext.log.info('Flow: lobby - active')
       this.emitLobbyUpdate()
     }
     if (event.meta.type === 'lcu-lobby-update') {
-      state.lcu.lobby = { ...state.lcu.lobby, ...event.data }
+      state.lcu.lobby = Object.assign(state.lcu.lobby, event.data, { members: state.lcu.lobby.members })
       state.lcu.lobby._available = true
       state.lcu.lobby._updated = new Date()
 
@@ -220,17 +224,19 @@ export class LCUDataReaderController extends Controller {
         >
       }
 
-      state.lcu.lobby.members = (event.data.members as any[])
-        .map((player: any, i) => {
+      const members = (event.data.members as any[])
+        .map((player: any) => {
           return this.addOrUpdatePlayer(player)
         })
         .sort((a, b) => {
           return a.sortedPosition < b.sortedPosition
             ? -1
             : a.sortedPosition > b.sortedPosition
-            ? 1
-            : 0
+              ? 1
+              : 0
         })
+
+      state.lcu.lobby.members = members
 
       this.emitLobbyUpdate()
     }
