@@ -66,7 +66,7 @@ const convertTeam = ({
           ? `/serve/module-league-static/img/champion/splash/${champion.id}_0.jpg`
           : '',
         splashCenteredImg: champion
-          ? `/serve/module-league-static/img/champion/centered/${champion.key}.jpg`
+          ? `/serve/module-league-static/img/champion/centered/${champion.id}_0.jpg`
           : '',
         squareImg: champion
           ? `/serve/module-league-static/img/champion/tiles/${champion.id}_0.jpg`
@@ -130,7 +130,7 @@ const convertTeam = ({
           ? `/serve/module-league-static/img/champion/splash/${champion.id}_0.jpg`
           : '',
         splashCenteredImg: champion
-          ? `/serve/module-league-static/img/champion/centered/${champion.key}.jpg`
+          ? `/serve/module-league-static/img/champion/centered/${champion.id}_0.jpg`
           : '',
         squareImg: champion
           ? `/serve/module-league-static/img/champion/tiles/${champion.id}_0.jpg`
