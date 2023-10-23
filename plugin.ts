@@ -54,7 +54,11 @@ module.exports = async (ctx: PluginContext) => {
 
   // Set and unset game
   ctx.LPTE.on(namespace, 'set-game', async (e) => {
-    setGameController.handle(e)
+    try {
+      setGameController.handle(e)
+    } catch (e: any) {
+      ctx.log.error('Exception ocurred while handling set-game action: ', e)
+    }
   })
   ctx.LPTE.on(namespace, 'unset-game', (e) => {
     unsetGameController.handle(e)
