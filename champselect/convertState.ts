@@ -74,7 +74,7 @@ const convertTeam = ({
       }
 
       if (summonerSearch !== undefined) {
-        pick.displayName = summonerSearch.nickname
+        pick.displayName = summonerSearch.displayName
       }
 
       if (
