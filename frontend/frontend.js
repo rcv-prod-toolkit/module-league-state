@@ -86,7 +86,8 @@ const formLoadByName = async () => {
       version: 1
     },
     by: 'summonerName',
-    summonerName: name
+    gameName: name,
+    tagLine: tagLine
   })
 
   await updateState()

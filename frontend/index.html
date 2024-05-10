@@ -80,7 +80,9 @@ This page contains configuration and operation elements for the
     the live game.
   </p>
   <form onsubmit="event.preventDefault(); formLoadByName();">
-    <input type="text" id="name" />
+    <input type="text" id="name" placeholder="name..." required />
+    #
+    <input type="text" id="tagLine" placeholder="tag..." required />
     <input type="submit" value="Load game" />
   </form>
   <h3>Set game by game id</h3>
