@@ -20,6 +20,7 @@ export class Cell {
   summonerId!: number
   spell1Id!: number
   spell2Id!: number
+  gameName!: string
 }
 
 export class Session {

@@ -73,9 +73,7 @@ const convertTeam = ({
           : ''
       }
 
-      if (summonerSearch !== undefined) {
-        pick.displayName = summonerSearch.nickname ??  summonerSearch.summonerName
-      }
+      pick.displayName = cell.gameName
 
       if (
         currentAction &&

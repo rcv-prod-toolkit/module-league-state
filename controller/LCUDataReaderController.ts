@@ -129,10 +129,7 @@ export class LCUDataReaderController extends Controller {
   }
 
   addOrUpdatePlayer(player: any): any {
-    const team =
-      player.teamId === 100
-        ? state.lcu.lobby.gameConfig.customTeam100
-        : state.lcu.lobby.gameConfig.customTeam200
+    const team = state.lcu.lobby.gameConfig.customTeam100.findIndex((p: any) => p.puuid === player.puuid) >= 0 ? state.lcu.lobby.gameConfig.customTeam100 : state.lcu.lobby.gameConfig.customTeam200
     const i = team.findIndex((p: any) => p.summonerId === player.summonerId)
 
     const member = state.lcu.lobby.members.find((m: any) =>
