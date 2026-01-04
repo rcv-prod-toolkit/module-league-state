@@ -8,6 +8,7 @@ export class Action {
   championId!: number
   type!: ActionType
   actorCellId!: number
+  isInProgress!: boolean
 }
 
 export interface Actionable {

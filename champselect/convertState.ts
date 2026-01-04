@@ -102,7 +102,7 @@ const convertTeam = ({
     .map((action) => {
       const ban = new Ban()
 
-      if (!action.completed && !isBanDetermined) {
+      if (!action.completed && !isBanDetermined && action.isInProgress) {
         isBanDetermined = true
         ban.isActive = true
         newTeam.isActive = true
