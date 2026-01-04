@@ -129,15 +129,18 @@ export class LCUDataReaderController extends Controller {
   }
 
   addOrUpdatePlayer(player: any): any {
-    const team = state.lcu.lobby.gameConfig.customTeam100.findIndex((p: any) => p.puuid === player.puuid) >= 0 ? state.lcu.lobby.gameConfig.customTeam100 : state.lcu.lobby.gameConfig.customTeam200
-    const i = team.findIndex((p: any) => p.summonerId === player.summonerId)
+    if (player.isSpectator) return
+
+    const teamId = state.lcu.lobby.gameConfig.customTeam100.findIndex((p: any) => p.puuid === player.puuid) >= 0 ? 100 : 200
+    const team = teamId === 100 ? state.lcu.lobby.gameConfig.customTeam100 : state.lcu.lobby.gameConfig.customTeam200
+    const i = team.findIndex((p: any) => p.puuid === player.puuid)
 
     const member = state.lcu.lobby.members.find((m: any) =>
-      m.summonerId === player.summonerId
+      m && m.puuid === player.puuid
     )
 
     const lcuPosition =
-      player.teamId === 100
+      teamId === 100
         ? i
         : i + state.lcu.lobby.gameConfig.customTeam100.length
 
@@ -151,7 +154,8 @@ export class LCUDataReaderController extends Controller {
           ...player,
           lcuPosition,
           sortedPosition: i,
-          elo: team[i].elo
+          elo: team[i].elo,
+          teamId
         }
       } else {
         return {
@@ -161,12 +165,13 @@ export class LCUDataReaderController extends Controller {
           sortedPosition: state.lcu.lobby.playerOrder.get(
             player.summonerName
           )[2],
-          elo: team[i].elo
+          elo: team[i].elo,
+          teamId
         }
       }
     } else {
       state.lcu.lobby.playerOrder.set(player.summonerName, [
-        player.teamId,
+        teamId,
         lcuPosition,
         lcuPosition
       ])
@@ -176,7 +181,8 @@ export class LCUDataReaderController extends Controller {
         ...player,
         lcuPosition,
         sortedPosition: lcuPosition,
-        elo: team[i].elo
+        elo: team[i].elo,
+        teamId
       }
     }
   }
