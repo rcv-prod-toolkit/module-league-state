@@ -22,13 +22,21 @@ const convertTeam = ({
   leagueStatic: any
 }) => {
   const newTeam = new Team()
-  newTeam.picks = team
-    .map((cell: Cell) => {
-      const currentAction = actions.find((action) => !action.completed)
 
-      const summonerSearch = gameState.lcu.lobby.members?.find(
+  const isInThisTeam = (cellId: number) =>
+    team.filter((cell) => cell.cellId === cellId).length !== 0
+
+  newTeam.picks = actions
+    .filter(
+      (action) => action.type === 'pick' && isInThisTeam(action.actorCellId)
+    )
+    .map((action) => {
+      const currentAction = actions.find((action) => !action.completed)
+      const cell = team.find(c => c.cellId === action.actorCellId)!
+
+      /* const summonerSearch = gameState.lcu.lobby.members?.find(
         (member: any) => member.summonerId === cell.summonerId
-      )
+      ) */
 
       /* cell.cellId = summonerSearch ? summonerSearch.sortedPosition : cell.cellId */
 
@@ -49,14 +57,15 @@ const convertTeam = ({
       }
 
       const championSearch = leagueStatic.champions.find(
-        (c: any) => c.key === cell.championId.toString()
+        (c: any) => c.key === action.championId.toString()
       )
       let champion: any
       if (championSearch !== undefined) {
         champion = championSearch
       }
+
       pick.champion = {
-        id: cell.championId,
+        id: action.championId,
         name: champion ? champion.name : '',
         idName: champion ? champion.id.toString() : '',
         loadingImg: champion
@@ -91,9 +100,6 @@ const convertTeam = ({
       return a.id < b.id ? -1 : a.id > b.id ? 1 : 0
     })
 
-  const isInThisTeam = (cellId: number) =>
-    team.filter((cell) => cell.cellId === cellId).length !== 0
-
   let isBanDetermined = false
   newTeam.bans = actions
     .filter(
@@ -106,8 +112,6 @@ const convertTeam = ({
         isBanDetermined = true
         ban.isActive = true
         newTeam.isActive = true
-        ban.champion = {} as any
-        return ban
       }
 
       const championSearch = leagueStatic.champions.filter(
